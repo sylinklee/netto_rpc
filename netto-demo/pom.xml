@@ -3,7 +3,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>com.netto</groupId>
-		<artifactId>netto-parent</artifactId>
+		<artifactId>netto-rpc</artifactId>
 		<version>0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>netto-demo</artifactId>
