@@ -40,6 +40,18 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter> {
 	}
 
 	public void setServerGroup(ServiceAddressGroup serverGroup) {
+		// 对设置的服务器信息进行校验
+		if (serverGroup.getRegistry() == null) {
+			if (serverGroup.getServers() == null || serverGroup.getServers().size() == 0) {
+				throw new RuntimeException("no server list!");
+			}
+		}
+		if (serverGroup.getServiceApp() == null) {
+			throw new RuntimeException("no app of services!");
+		}
+		if (serverGroup.getServiceGroup() == null) {
+			serverGroup.setServiceGroup("*");
+		}
 		this.serverGroup = serverGroup;
 	}
 

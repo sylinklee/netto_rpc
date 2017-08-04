@@ -5,7 +5,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-
 import com.netto.client.bean.ReferenceBean;
 import com.netto.client.router.ServiceRouterFactory;
 import com.netto.context.ServiceAddress;
@@ -107,6 +106,7 @@ public class NettoClient {
 		serverGroup.setRegistry(null);
 		serverGroup.setServiceApp("netto-demo");
 		serverGroup.setServiceGroup("*");
+		serverGroup.setServers(servers);
 
 		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
 		routerFactory.setServerGroup(serverGroup);
