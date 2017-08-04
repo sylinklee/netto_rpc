@@ -8,6 +8,7 @@ import java.util.Map;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -70,7 +71,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String> getRouterMap() {
-		CloseableHttpClient httpClient = HttpClients.createDefault();
+		HttpClient httpClient = this.httPool.getResource();
 		try {
 			StringBuilder sb = new StringBuilder(50);
 			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
@@ -86,11 +87,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 			logger.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} finally {
-			try {
-				httpClient.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+			this.httPool.release(httpClient);
 		}
 	}
 

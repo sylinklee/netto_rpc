@@ -3,6 +3,7 @@ package com.netto.server;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.InitializingBean;
 
 import com.netto.server.handler.NettyServerHandler;
 
@@ -16,7 +17,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
-public class NettyServer {
+public class NettyServer implements InitializingBean {
 	private static Logger logger = Logger.getLogger(NettyServer.class);
 	private int port = 12345;
 	private Map<String, Object> serviceBeans;
@@ -30,7 +31,11 @@ public class NettyServer {
 		return serviceBeans;
 	}
 
-	public void run() throws Exception {
+	public void afterPropertiesSet() throws Exception {
+		this.run();
+	}
+
+	private void run() throws Exception {
 		EventLoopGroup bossGroup = new NioEventLoopGroup(); // (1)
 		EventLoopGroup workerGroup = new NioEventLoopGroup();
 		try {
@@ -58,4 +63,5 @@ public class NettyServer {
 			workerGroup.shutdownGracefully();
 		}
 	}
+
 }

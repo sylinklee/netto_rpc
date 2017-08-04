@@ -7,7 +7,7 @@ import org.springframework.beans.factory.FactoryBean;
 
 import com.netto.client.RpcHttpClient;
 import com.netto.client.RpcTcpClient;
-import com.netto.client.router.ServiceRouter;
+import com.netto.client.router.ServiceRouterFactory;
 
 public class ReferenceBean implements FactoryBean<Object> {
 	private String protocol = "tcp"; // tcp,http
@@ -16,14 +16,14 @@ public class ReferenceBean implements FactoryBean<Object> {
 	private String serviceApp;
 	private String serviceName;
 	private int timeout;
-	private ServiceRouter router;
+	private ServiceRouterFactory routerFactory;
 
-	public ServiceRouter getRouter() {
-		return router;
+	public ServiceRouterFactory getRouterFactory() {
+		return routerFactory;
 	}
 
-	public void setRouter(ServiceRouter router) {
-		this.router = router;
+	public void setRouterFactory(ServiceRouterFactory routerFactory) {
+		this.routerFactory = routerFactory;
 	}
 
 	public int getTimeout() {
@@ -64,9 +64,11 @@ public class ReferenceBean implements FactoryBean<Object> {
 	public Object getObject() throws Exception {
 		InvocationHandler client;
 		if (protocol.equals("tcp")) {
-			client = new RpcTcpClient(this.router.findProvider(serviceApp, null), serviceName, this.timeout);
+			client = new RpcTcpClient(this.getRouterFactory().getObject().findProvider(serviceApp, null), serviceName,
+					this.timeout);
 		} else {
-			client = new RpcHttpClient(this.router.findProvider(serviceApp, null), this.serviceName, this.timeout);
+			client = new RpcHttpClient(this.getRouterFactory().getObject().findProvider(serviceApp, null),
+					this.serviceName, this.timeout);
 		}
 		Object proxy = Proxy.newProxyInstance(interfaceClazz.getClassLoader(), new Class<?>[] { interfaceClazz },
 				client);

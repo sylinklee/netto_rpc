@@ -5,14 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 
 import com.netto.client.bean.ReferenceBean;
-import com.netto.client.pool.TcpConnectPool;
-import com.netto.client.provider.LocalServiceProvider;
-import com.netto.client.provider.NginxServiceProvider;
-import com.netto.client.router.ServiceRouter;
+import com.netto.client.router.ServiceRouterFactory;
 import com.netto.context.ServiceAddress;
+import com.netto.context.ServiceAddressGroup;
 import com.netto.demo.Book;
 import com.netto.demo.HelloService;
 import com.netto.demo.User;
@@ -23,12 +20,17 @@ public class NettoClient {
 	}
 
 	public static void nginx_http_tcp() throws Exception {
-		NginxServiceProvider provider = new NginxServiceProvider("http://192.168.150.150:8080/", "netto-demo", "*");
-		ServiceRouter router = new ServiceRouter(provider);
+		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		serverGroup.setRegistry("http://192.168.150.150:8080/");
+		serverGroup.setServiceApp("netto-demo");
+		serverGroup.setServiceGroup("*");
+
+		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
+		routerFactory.setServerGroup(serverGroup);
 
 		ReferenceBean refer = new ReferenceBean();
 		refer.setServiceUri("netto-demo/helloService");
-		refer.setRouter(router);
+		refer.setRouterFactory(routerFactory);
 		refer.setInterfaceClazz(HelloService.class);
 		refer.setTimeout(20 * 1000);
 		refer.setProtocol("http");
@@ -57,12 +59,17 @@ public class NettoClient {
 	}
 
 	public static void nginx_tcp() throws Exception {
-		NginxServiceProvider provider = new NginxServiceProvider("http://192.168.150.150:8080/", "netto-demo", "*");
-		ServiceRouter router = new ServiceRouter(provider);
+		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		serverGroup.setRegistry("http://192.168.150.150:8080/");
+		serverGroup.setServiceApp("netto-demo");
+		serverGroup.setServiceGroup("*");
+
+		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
+		routerFactory.setServerGroup(serverGroup);
 
 		ReferenceBean refer = new ReferenceBean();
 		refer.setServiceUri("netto-demo/helloService");
-		refer.setRouter(router);
+		refer.setRouterFactory(routerFactory);
 		refer.setInterfaceClazz(HelloService.class);
 		refer.setTimeout(20 * 1000);
 		refer.setProtocol("tcp");
@@ -95,19 +102,22 @@ public class NettoClient {
 		address.setIp("localhost");
 		address.setPort(12345);
 		servers.add(address);
-		TcpConnectPool pool = new TcpConnectPool(servers, new GenericObjectPoolConfig());
 
-		LocalServiceProvider provider = new LocalServiceProvider(null, "netto-demo", "*", pool);
+		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		serverGroup.setRegistry(null);
+		serverGroup.setServiceApp("netto-demo");
+		serverGroup.setServiceGroup("*");
 
-		ServiceRouter router = new ServiceRouter(provider);
+		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
+		routerFactory.setServerGroup(serverGroup);
 
 		ReferenceBean refer = new ReferenceBean();
 		refer.setServiceUri("netto-demo/helloService");
-		refer.setRouter(router);
+		refer.setRouterFactory(routerFactory);
 		refer.setInterfaceClazz(HelloService.class);
 		refer.setTimeout(20 * 1000);
 		refer.setProtocol("tcp");
-		
+
 		System.out.println("local_tcp begin-----------");
 		HelloService helloProxy = (HelloService) refer.getObject();
 		String res = helloProxy.sayHello("netto");
