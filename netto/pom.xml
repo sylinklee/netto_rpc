@@ -23,6 +23,11 @@
 			<artifactId>netto-demo</artifactId>
 			<version>${netto.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.netto</groupId>
+			<artifactId>netto-schedule-jdbc</artifactId>
+			<version>${netto.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -79,6 +84,8 @@
 								<includes>
 									<include>com.netto:netto-core</include>
 									<include>com.netto:netto-demo</include>
+									<include>com.netto:netto-schedule-api</include>
+									<include>com.netto:netto-schedule-jdbc</include>
 								</includes>
 							</artifactSet>
 						</configuration>

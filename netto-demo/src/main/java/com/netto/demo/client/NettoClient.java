@@ -115,7 +115,7 @@ public class NettoClient {
 		refer.setServiceUri("netto-demo/helloService");
 		refer.setRouterFactory(routerFactory);
 		refer.setInterfaceClazz(HelloService.class);
-		refer.setTimeout(20 * 1000);
+		refer.setTimeout(2 * 1000);
 		refer.setProtocol("tcp");
 
 		System.out.println("local_tcp begin-----------");

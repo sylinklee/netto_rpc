@@ -9,5 +9,70 @@
 		<module>netto-core</module>
 		<module>netto-demo</module>
 		<module>netto</module>
+		<module>netto-schedule</module>
 	</modules>
+	<properties>
+		<spring.version>4.1.6.RELEASE</spring.version>
+		
+		<maven_source_plugin_version>2.4</maven_source_plugin_version>
+		<maven_jar_plugin_version>2.3.2</maven_jar_plugin_version>
+		<maven_war_plugin_version>2.1.1</maven_war_plugin_version>
+		<maven_install_plugin_version>2.3.1</maven_install_plugin_version>
+		<maven_deploy_plugin_version>2.7</maven_deploy_plugin_version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
+		<skip_maven_deploy>false</skip_maven_deploy>
+		<maven_compiler_plugin_version>2.3.2</maven_compiler_plugin_version>
+		<java_source_version>1.8</java_source_version>
+		<java_target_version>1.8</java_target_version>
+		<file_encoding>UTF-8</file_encoding>
+	</properties>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>com.google.code.gson</groupId>
+				<artifactId>gson</artifactId>
+				<version>2.8.1</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+	<build>
+		<plugins>
+			<!-- 编译 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>${maven_compiler_plugin_version}</version>
+				<configuration>
+					<source>${java_source_version}</source>
+					<target>${java_target_version}</target>
+					<encoding>${file_encoding}</encoding>
+				</configuration>
+			</plugin>
+			<!-- 源码 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-source-plugin</artifactId>
+				<version>${maven_source_plugin_version}</version>
+				<executions>
+					<execution>
+						<id>attach-sources</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar-no-fork</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<!-- 打包 -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-deploy-plugin</artifactId>
+				<version>${maven_deploy_plugin_version}</version>
+				<configuration>
+					<skip>${skip_maven_deploy}</skip>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
 </project>
