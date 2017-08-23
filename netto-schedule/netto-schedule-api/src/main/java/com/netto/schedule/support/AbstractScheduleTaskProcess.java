@@ -26,7 +26,7 @@ public abstract class AbstractScheduleTaskProcess<T> implements IScheduleTaskPro
 		List<T> tasks = this.selectTasks(param, curServer);
 
 		if (logger.isInfoEnabled()) {
-			logger.info("获取任务[" + this.getClass().getName() + "][" + curServer + "/" + param.getServerCount() + "]共"
+			logger.info("获取任务[" + this.getClass().getName() + "][" + curServer + "/" + param.getInovkerCount() + "]共"
 					+ (tasks == null ? 0 : tasks.size()) + "条");
 		}
 		if (tasks == null) {
@@ -39,7 +39,7 @@ public abstract class AbstractScheduleTaskProcess<T> implements IScheduleTaskPro
 		// }
 		this.innerExecuteTasks(param, tasks);
 		if (logger.isInfoEnabled()) {
-			logger.info("执行任务[" + this.getClass().getName() + "][" + curServer + "/" + param.getServerCount() + "]共"
+			logger.info("执行任务[" + this.getClass().getName() + "][" + curServer + "/" + param.getInovkerCount() + "]共"
 					+ tasks.size() + "条完成!");
 		}
 		return tasks.size();

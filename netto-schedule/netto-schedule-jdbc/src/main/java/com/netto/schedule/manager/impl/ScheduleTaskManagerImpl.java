@@ -182,10 +182,10 @@ public class ScheduleTaskManagerImpl implements ScheduleTaskManager {
 
 		Map<String, Object> map = new HashMap<>();
 
-		if (param.getServerCount() != 1) {
-			List<Integer> regions = ScheduleUtil.getTaskRegions(param.getServerCount(), curServer);
+		if (param.getInovkerCount() != 1) {
+			List<Integer> regions = ScheduleUtil.getTaskRegions(param.getInovkerCount(), curServer);
 			if (regions.size() != ScheduleUtil.MaxRegionCount) {
-				map.put("regions", ScheduleUtil.getTaskRegions(param.getServerCount(), curServer));
+				map.put("regions", ScheduleUtil.getTaskRegions(param.getInovkerCount(), curServer));
 			}
 		}
 
@@ -198,8 +198,8 @@ public class ScheduleTaskManagerImpl implements ScheduleTaskManager {
 		map.put("taskType", taskType);
 		map.put("tableFix", tableFix);
 		StringBuilder sb = new StringBuilder(100);
-		sb.append("serverCount=").append(param.getServerCount()).append(",curServer=").append(curServer)
-				.append(",serverArg=").append(param.getServerArg()).append(",lastTime=").append(map.get("lastTime"))
+		sb.append("serverCount=").append(param.getInovkerCount()).append(",curServer=").append(curServer)
+				.append(",serverArg=").append(param.getSelfDefined()).append(",lastTime=").append(map.get("lastTime"))
 				.append(",retryCount=").append(map.get("retryCount")).append(",fetchCount=")
 				.append(map.get("fetchCount")).append(",taskType=").append(map.get("taskType")).append(",tableFix=")
 				.append(map.get("tableFix"));

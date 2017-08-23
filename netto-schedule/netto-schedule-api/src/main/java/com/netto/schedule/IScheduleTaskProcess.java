@@ -14,5 +14,5 @@ public interface IScheduleTaskProcess {
 	public static int TaskStatus_his = 5;
 	public static int TaskStatus_error = 10;
 
-	int execute(ScheduleParam param, Integer curServer);
+	int execute(ScheduleParam param, Integer invokerNumber);
 }

@@ -13,11 +13,11 @@ public class ScheduleParam implements Serializable {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	private int serverCount = 1;// 任务服务器数量
-	private String serverArg;
+	private int invokerCount = 1;// 任务服务器数量
+	private String selfDefined;
 	private int fetchCount = 100;
 	private int executeCount = 20;
-	private int clientThreadCount = 5;
+	private int executeThreadCount = 5;
 	private int dataRetryCount = 3;
 	private int retryTimeInterval = 120; // 数据重试间隔时间秒
 
@@ -37,28 +37,28 @@ public class ScheduleParam implements Serializable {
 		this.retryTimeInterval = retryTimeInterval;
 	}
 
-	public int getServerCount() {
-		return serverCount;
+	public int getInovkerCount() {
+		return invokerCount;
 	}
 
-	public void setServerCount(int serverCount) {
-		this.serverCount = serverCount;
+	public void setInvokerCount(int invokerCount) {
+		this.invokerCount = invokerCount;
 	}
 
 	public int getClientThreadCount() {
-		return clientThreadCount;
+		return executeThreadCount;
 	}
 
 	public void setClientThreadCount(int clientThreadCount) {
-		this.clientThreadCount = clientThreadCount;
+		this.executeThreadCount = clientThreadCount;
 	}
 
-	public String getServerArg() {
-		return serverArg;
+	public String getSelfDefined() {
+		return selfDefined;
 	}
 
-	public void setServerArg(String serverArg) {
-		this.serverArg = serverArg;
+	public void setServerArg(String selfDefined) {
+		this.selfDefined = selfDefined;
 	}
 
 	public int getFetchCount() {

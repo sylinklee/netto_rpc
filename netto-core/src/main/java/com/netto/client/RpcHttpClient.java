@@ -2,17 +2,14 @@ package com.netto.client;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.NameValuePair;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
-import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
@@ -63,11 +60,9 @@ public class RpcHttpClient implements InvocationHandler {
 				post.addHeader("$router", RpcContext.getRouterContext());
 			}
 
-			// 创建参数队列
-			List<NameValuePair> formparams = new ArrayList<NameValuePair>();
-			formparams.add(new BasicNameValuePair("data", gson.toJson(req)));
-			UrlEncodedFormEntity uefEntity = new UrlEncodedFormEntity(formparams, "UTF-8");
-			post.setEntity(uefEntity);
+			StringEntity se = new StringEntity(gson.toJson(req), ContentType.APPLICATION_JSON);
+			post.setEntity(se);
+			
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = EntityUtils.toString(entity, "UTF-8");
