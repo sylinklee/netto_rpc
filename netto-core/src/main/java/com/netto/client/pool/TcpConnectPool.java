@@ -60,7 +60,7 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 		}
 
 		public boolean validateObject(PooledObject<Socket> p) {
-			return p.getObject().isConnected();
+			return p.getObject().isConnected() && !p.getObject().isClosed();
 		}
 
 		public void activateObject(PooledObject<Socket> p) throws Exception {
