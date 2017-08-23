@@ -59,7 +59,7 @@ public class RpcHttpClient implements InvocationHandler {
 			if (RpcContext.getRouterContext() != null) {
 				post.addHeader("$router", RpcContext.getRouterContext());
 			}
-
+			//body 
 			StringEntity se = new StringEntity(gson.toJson(req), ContentType.APPLICATION_JSON);
 			post.setEntity(se);
 			
