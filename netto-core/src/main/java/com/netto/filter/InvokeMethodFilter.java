@@ -1,4 +1,4 @@
-package com.netto.client.filter;
+package com.netto.filter;
 
 import java.lang.reflect.Method;
 

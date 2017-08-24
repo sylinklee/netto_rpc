@@ -7,8 +7,8 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
-import com.netto.client.filter.InvokeMethodFilter;
 import com.netto.client.provider.ServiceProvider;
+import com.netto.filter.InvokeMethodFilter;
 
 public abstract class AbstactRpcClient implements InvocationHandler {
 	protected static Logger logger = Logger.getLogger(AbstactRpcClient.class);

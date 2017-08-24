@@ -12,11 +12,11 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
-import com.netto.client.filter.InvokeMethodFilter;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
+import com.netto.filter.InvokeMethodFilter;
 
 public class RpcTcpClient extends AbstactRpcClient {
 	private static Logger logger = Logger.getLogger(RpcTcpClient.class);

@@ -7,12 +7,12 @@ import java.util.Map;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.FactoryBean;
 
-import com.netto.client.filter.InvokeMethodFilter;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.LocalServiceProvider;
 import com.netto.client.provider.NginxServiceProvider;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.context.ServiceAddressGroup;
+import com.netto.filter.InvokeMethodFilter;
 
 public class ServiceRouterFactory implements FactoryBean<ServiceRouter> {
 	private List<ServiceAddressGroup> serverGroups;
