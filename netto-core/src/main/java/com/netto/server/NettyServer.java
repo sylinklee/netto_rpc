@@ -1,10 +1,12 @@
 package com.netto.server;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.netto.filter.InvokeMethodFilter;
 import com.netto.server.handler.NettyServerHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
@@ -21,6 +23,7 @@ public class NettyServer implements InitializingBean {
 	private static Logger logger = Logger.getLogger(NettyServer.class);
 	private int port = 12345;
 	private Map<String, Object> serviceBeans;
+	private List<InvokeMethodFilter> filters;
 
 	public NettyServer(int port, Map<String, Object> serviceBeans) {
 		this.port = port;
@@ -29,6 +32,14 @@ public class NettyServer implements InitializingBean {
 
 	public Map<String, Object> getServiceBeans() {
 		return serviceBeans;
+	}
+
+	public List<InvokeMethodFilter> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<InvokeMethodFilter> filters) {
+		this.filters = filters;
 	}
 
 	public void afterPropertiesSet() throws Exception {
@@ -46,7 +57,7 @@ public class NettyServer implements InitializingBean {
 						public void initChannel(SocketChannel ch) throws Exception {
 
 							ChannelPipeline p = ch.pipeline();
-							p.addLast(new NettyServerHandler(serviceBeans));
+							p.addLast(new NettyServerHandler(serviceBeans, filters));
 						}
 					});
 

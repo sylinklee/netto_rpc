@@ -1,13 +1,14 @@
 package com.netto.server.handler;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
-import com.netto.context.ServiceProxy;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
+import com.netto.filter.InvokeMethodFilter;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -15,11 +16,13 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
 
 public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 	private static Logger logger = Logger.getLogger(NettyServerHandler.class);
-	private Map<String, Object> serviceBeans;
 	private static Gson gson = new Gson();
+	private Map<String, Object> serviceBeans;
+	private List<InvokeMethodFilter> filters;
 
-	public NettyServerHandler(Map<String, Object> serviceBeans) {
+	public NettyServerHandler(Map<String, Object> serviceBeans, List<InvokeMethodFilter> filters) {
 		this.serviceBeans = serviceBeans;
+		this.filters = filters;
 	}
 
 	@Override
@@ -30,16 +33,16 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 			buf.readBytes(req);
 			String body = new String(req, "UTF-8");
 			ServiceRequest reqObj = gson.fromJson(body, ServiceRequest.class);
-			ServiceProxy proxy = new ServiceProxy(reqObj, this.serviceBeans.get(reqObj.getServiceName()));
+			ServiceProxy proxy = new ServiceProxy(reqObj, this.serviceBeans.get(reqObj.getServiceName()), this.filters);
 
 			ServiceResponse resObj = new ServiceResponse();
 			try {
 				resObj.setSuccess(true);
 				resObj.setBody(proxy.callService());
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
+			} catch (Throwable t) {
+				logger.error(t.getMessage(), t);
 				resObj.setSuccess(false);
-				resObj.setBody(e.getMessage());
+				resObj.setBody(t.getMessage());
 			}
 
 			String response = gson.toJson(resObj) + "\r\n";
@@ -62,5 +65,4 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 		super.exceptionCaught(ctx, cause);
 		ctx.close();
 	}
-
 }
