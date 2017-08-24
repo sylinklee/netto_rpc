@@ -1,7 +1,7 @@
 package com.netto.client;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.util.List;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -11,35 +11,29 @@ import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.ContentType;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
-import org.apache.log4j.Logger;
-
-import com.google.gson.Gson;
 import com.netto.client.context.RpcContext;
+import com.netto.client.filter.InvokeMethodFilter;
 import com.netto.client.pool.HttpConnectPool;
 import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
 
-public class RpcHttpClient implements InvocationHandler {
-	private static Logger logger = Logger.getLogger(RpcHttpClient.class);
-	private final String serviceName;
-	private int timeout = 10 * 1000;
-	private static Gson gson = new Gson();
-	private AbstractServiceProvider provider;
+public class RpcHttpClient extends AbstactRpcClient {
 	private HttpConnectPool pool;
+	private AbstractServiceProvider provider;
 
-	public RpcHttpClient(ServiceProvider provider, String serviceName, int timeout) {
+	public RpcHttpClient(ServiceProvider provider, List<InvokeMethodFilter> filters, String serviceName, int timeout) {
+		super(provider, filters, serviceName, timeout);
 		this.provider = (AbstractServiceProvider) provider;
-		this.pool = (HttpConnectPool) this.provider.getPool("http");
-		this.serviceName = serviceName;
-		this.timeout = timeout;
+		this.pool = (HttpConnectPool) provider.getPool("http");
 	}
 
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	@Override
+	protected Object invokeMethod(Method method, Object[] args) throws Throwable {
 		ServiceRequest req = new ServiceRequest();
 		req.setMethodName(method.getName());
-		req.setServiceName(serviceName);
+		req.setServiceName(this.getServiceName());
 		for (Object arg : args) {
 			if (arg != null) {
 				req.getArgs().add(gson.toJson(arg));
@@ -47,8 +41,8 @@ public class RpcHttpClient implements InvocationHandler {
 				req.getArgs().add(null);
 			}
 		}
-		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(this.timeout)
-				.setConnectionRequestTimeout(this.timeout).setSocketTimeout(this.timeout).build();
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(this.getTimeout())
+				.setConnectionRequestTimeout(this.getTimeout()).setSocketTimeout(this.getTimeout()).build();
 
 		HttpClient httpClient = this.pool.getResource();
 		try {
@@ -59,10 +53,10 @@ public class RpcHttpClient implements InvocationHandler {
 			if (RpcContext.getRouterContext() != null) {
 				post.addHeader("$router", RpcContext.getRouterContext());
 			}
-			//body 
+			// body
 			StringEntity se = new StringEntity(gson.toJson(req), ContentType.APPLICATION_JSON);
 			post.setEntity(se);
-			
+
 			HttpResponse response = httpClient.execute(post);
 			HttpEntity entity = response.getEntity();
 			String body = EntityUtils.toString(entity, "UTF-8");

@@ -7,6 +7,7 @@ import java.util.Map;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.FactoryBean;
 
+import com.netto.client.filter.InvokeMethodFilter;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.LocalServiceProvider;
 import com.netto.client.provider.NginxServiceProvider;
@@ -18,6 +19,7 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter> {
 	private ServiceAddressGroup serverGroup;
 	private Map<String, String> routers;
 	private GenericObjectPoolConfig poolConfig;
+	private List<InvokeMethodFilter> filters;
 
 	public GenericObjectPoolConfig getPoolConfig() {
 		return poolConfig;
@@ -33,6 +35,14 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter> {
 
 	public void setServerGroups(List<ServiceAddressGroup> serverGroups) {
 		this.serverGroups = serverGroups;
+	}
+
+	public List<InvokeMethodFilter> getFilters() {
+		return filters;
+	}
+
+	public void setFilters(List<InvokeMethodFilter> filters) {
+		this.filters = filters;
 	}
 
 	public ServiceAddressGroup getServerGroup() {

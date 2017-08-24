@@ -5,35 +5,35 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
+import com.netto.client.filter.InvokeMethodFilter;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
 
-public class RpcTcpClient implements InvocationHandler {
+public class RpcTcpClient extends AbstactRpcClient {
 	private static Logger logger = Logger.getLogger(RpcTcpClient.class);
-	private final String serviceName;
 	private TcpConnectPool pool;
 	private int timeout = 10 * 1000;
 	private static Gson gson = new Gson();
 
-	public RpcTcpClient(ServiceProvider provider, String serviceName, int timeout) {
+	public RpcTcpClient(ServiceProvider provider, List<InvokeMethodFilter> filters, String serviceName, int timeout) {
+		super(provider, filters, serviceName, timeout);
 		this.pool = (TcpConnectPool) provider.getPool("tcp");
-		this.serviceName = serviceName;
-		this.timeout = timeout;
 	}
 
-	public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+	@Override
+	protected Object invokeMethod(Method method, Object[] args) throws Throwable {
 		ServiceRequest req = new ServiceRequest();
 		req.setMethodName(method.getName());
-		req.setServiceName(serviceName);
+		req.setServiceName(this.getServiceName());
 		for (Object arg : args) {
 			if (arg != null) {
 				req.getArgs().add(gson.toJson(arg));

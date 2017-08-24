@@ -14,11 +14,11 @@ public class HelloServiceImpl implements HelloService {
 	}
 
 	public List<User> saveUsers(Map<String, List<User>> users) {
-		try {
-			Thread.sleep(5 * 1000);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+//		try {
+//			Thread.sleep(5 * 1000);
+//		} catch (InterruptedException e) {
+//			e.printStackTrace();
+//		}
 		for (String key : users.keySet()) {
 			for (User u : users.get(key)) {
 				u.setAge(12);

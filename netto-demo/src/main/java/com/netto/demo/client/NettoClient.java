@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import com.netto.client.bean.ReferenceBean;
 import com.netto.client.router.ServiceRouterFactory;
@@ -14,8 +15,12 @@ import com.netto.demo.HelloService;
 import com.netto.demo.User;
 
 public class NettoClient {
+	private static ServiceRouterFactory routerFactory;
+
 	public static void main(String[] args) throws Exception {
 		local_tcp();
+		CountDownLatch latch = new CountDownLatch(1);
+		latch.await();
 	}
 
 	public static void nginx_http_tcp() throws Exception {
@@ -24,7 +29,7 @@ public class NettoClient {
 		serverGroup.setServiceApp("netto-demo");
 		serverGroup.setServiceGroup("*");
 
-		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
+		routerFactory = new ServiceRouterFactory();
 		routerFactory.setServerGroup(serverGroup);
 
 		ReferenceBean refer = new ReferenceBean();
@@ -63,7 +68,7 @@ public class NettoClient {
 		serverGroup.setServiceApp("netto-demo");
 		serverGroup.setServiceGroup("*");
 
-		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
+		routerFactory = new ServiceRouterFactory();
 		routerFactory.setServerGroup(serverGroup);
 
 		ReferenceBean refer = new ReferenceBean();
@@ -108,7 +113,7 @@ public class NettoClient {
 		serverGroup.setServiceGroup("*");
 		serverGroup.setServers(servers);
 
-		ServiceRouterFactory routerFactory = new ServiceRouterFactory();
+		routerFactory = new ServiceRouterFactory();
 		routerFactory.setServerGroup(serverGroup);
 
 		ReferenceBean refer = new ReferenceBean();

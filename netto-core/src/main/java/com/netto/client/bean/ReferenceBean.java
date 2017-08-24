@@ -64,11 +64,11 @@ public class ReferenceBean implements FactoryBean<Object> {
 	public Object getObject() throws Exception {
 		InvocationHandler client;
 		if (protocol.equals("tcp")) {
-			client = new RpcTcpClient(this.getRouterFactory().getObject().findProvider(serviceApp, null), serviceName,
-					this.timeout);
+			client = new RpcTcpClient(this.getRouterFactory().getObject().findProvider(serviceApp, null),
+					this.routerFactory.getFilters(), serviceName, this.timeout);
 		} else {
 			client = new RpcHttpClient(this.getRouterFactory().getObject().findProvider(serviceApp, null),
-					this.serviceName, this.timeout);
+					this.routerFactory.getFilters(), this.serviceName, this.timeout);
 		}
 		Object proxy = Proxy.newProxyInstance(interfaceClazz.getClassLoader(), new Class<?>[] { interfaceClazz },
 				client);
