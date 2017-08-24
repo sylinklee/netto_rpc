@@ -45,10 +45,12 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 		public PooledObject<Socket> makeObject() throws Exception {
 			// 简单策略随机取服务器，没有考虑权重
 			for (int i = 0; i < servers.size(); i++) {
-				int index = new Random(System.currentTimeMillis()).nextInt(servers.size());
-				ServiceAddress server = servers.get(index);
-				if (this.testServer(server.getIp(), server.getPort())) {
+				try {
+					int index = new Random(System.currentTimeMillis()).nextInt(servers.size());
+					ServiceAddress server = servers.get(index);
 					return new DefaultPooledObject<Socket>(new Socket(server.getIp(), server.getPort()));
+				} catch (Exception e) {
+					;
 				}
 			}
 			throw new Exception("No server available!");
@@ -71,16 +73,6 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 		}
 
 		public void passivateObject(PooledObject<Socket> p) throws Exception {
-		}
-
-		private boolean testServer(String ip, int port) {
-			try {
-				Socket socket = new Socket(ip, port);
-				socket.close();
-				return true;
-			} catch (Exception e) {
-				return false;
-			}
 		}
 	}
 }
