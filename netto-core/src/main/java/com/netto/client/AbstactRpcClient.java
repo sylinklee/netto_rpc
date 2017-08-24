@@ -7,6 +7,7 @@ import java.util.List;
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
+import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.filter.InvokeMethodFilter;
 
@@ -16,12 +17,18 @@ public abstract class AbstactRpcClient implements InvocationHandler {
 	private int timeout = 10 * 1000;
 	protected static Gson gson = new Gson();
 	private List<InvokeMethodFilter> filters;
+	private AbstractServiceProvider provider;
 
 	public AbstactRpcClient(ServiceProvider provider, List<InvokeMethodFilter> filters, String serviceName,
 			int timeout) {
+		this.provider = (AbstractServiceProvider) provider;
 		this.serviceName = serviceName;
 		this.timeout = timeout;
 		this.filters = filters;
+	}
+
+	protected AbstractServiceProvider getProvider() {
+		return provider;
 	}
 
 	public String getServiceName() {

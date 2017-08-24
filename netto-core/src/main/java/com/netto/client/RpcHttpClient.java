@@ -13,7 +13,6 @@ import org.apache.http.entity.StringEntity;
 import org.apache.http.util.EntityUtils;
 import com.netto.client.context.RpcContext;
 import com.netto.client.pool.HttpConnectPool;
-import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
@@ -21,11 +20,9 @@ import com.netto.filter.InvokeMethodFilter;
 
 public class RpcHttpClient extends AbstactRpcClient {
 	private HttpConnectPool pool;
-	private AbstractServiceProvider provider;
 
 	public RpcHttpClient(ServiceProvider provider, List<InvokeMethodFilter> filters, String serviceName, int timeout) {
 		super(provider, filters, serviceName, timeout);
-		this.provider = (AbstractServiceProvider) provider;
 		this.pool = (HttpConnectPool) provider.getPool("http");
 	}
 
@@ -47,9 +44,9 @@ public class RpcHttpClient extends AbstactRpcClient {
 		HttpClient httpClient = this.pool.getResource();
 		try {
 			// 创建httppost
-			HttpPost post = new HttpPost(this.provider.getRegistry());
+			HttpPost post = new HttpPost(this.getInvokeUrl(method.getName()));
 			post.setConfig(requestConfig);
-			post.addHeader("$app", this.provider.getServiceApp());
+			post.addHeader("$app", this.getProvider().getServiceApp());
 			if (RpcContext.getRouterContext() != null) {
 				post.addHeader("$router", RpcContext.getRouterContext());
 			}
@@ -74,4 +71,14 @@ public class RpcHttpClient extends AbstactRpcClient {
 		}
 	}
 
+	private String getInvokeUrl(String methodName) {
+		StringBuilder sb = new StringBuilder(100);
+		sb.append(this.getProvider().getRegistry());
+		if (!this.getProvider().getRegistry().endsWith("/")) {
+			sb.append("/");
+		}
+		sb.append(this.getProvider().getServiceApp()).append("/").append(this.getServiceName()).append("/")
+				.append(methodName);
+		return sb.toString();
+	}
 }
