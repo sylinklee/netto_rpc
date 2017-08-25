@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
 import com.netto.filter.InvokeMethodFilter;
+import com.netto.server.desc.impl.ServiceDescApiImpl;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,6 +23,7 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 
 	public NettyServerHandler(Map<String, Object> serviceBeans, List<InvokeMethodFilter> filters) {
 		this.serviceBeans = serviceBeans;
+		this.serviceBeans.put("$serviceDesc", new ServiceDescApiImpl(this.serviceBeans));
 		this.filters = filters;
 	}
 
@@ -33,18 +35,23 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 			buf.readBytes(req);
 			String body = new String(req, "UTF-8");
 			ServiceRequest reqObj = gson.fromJson(body, ServiceRequest.class);
-			ServiceProxy proxy = new ServiceProxy(reqObj, this.serviceBeans.get(reqObj.getServiceName()), this.filters);
-
 			ServiceResponse resObj = new ServiceResponse();
-			try {
-				resObj.setSuccess(true);
-				resObj.setBody(proxy.callService());
-			} catch (Throwable t) {
-				logger.error(t.getMessage(), t);
-				resObj.setSuccess(false);
-				resObj.setBody(t.getMessage());
-			}
+			if (this.serviceBeans.containsKey(reqObj.getServiceName())) {
+				ServiceProxy proxy = new ServiceProxy(reqObj, this.serviceBeans.get(reqObj.getServiceName()),
+						this.filters);
 
+				try {
+					resObj.setSuccess(true);
+					resObj.setBody(proxy.callService());
+				} catch (Throwable t) {
+					logger.error(t.getMessage(), t);
+					resObj.setSuccess(false);
+					resObj.setBody(t.getMessage());
+				}
+			} else {
+				resObj.setSuccess(false);
+				resObj.setBody("service " + reqObj.getServiceName() + " is not exsist!");
+			}
 			String response = gson.toJson(resObj) + "\r\n";
 			ByteBuf encoded = ctx.alloc().buffer(4 * response.length());
 			encoded.writeBytes(response.getBytes());
@@ -65,4 +72,5 @@ public class NettyServerHandler extends ChannelInboundHandlerAdapter {
 		super.exceptionCaught(ctx, cause);
 		ctx.close();
 	}
+
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 
 import com.netto.client.bean.ReferenceBean;
@@ -13,6 +14,8 @@ import com.netto.context.ServiceAddressGroup;
 import com.netto.demo.Book;
 import com.netto.demo.HelloService;
 import com.netto.demo.User;
+import com.netto.server.desc.ServiceDescApi;
+import com.netto.server.desc.MethodDesc;
 
 public class NettoClient {
 	private static ServiceRouterFactory routerFactory;
@@ -144,6 +147,26 @@ public class NettoClient {
 			System.out.println("name=" + u1.getName() + ",age=" + u1.getAge());
 		}
 		System.out.println("local_tcp end-----------");
+
+		System.out.println("service desc api begin------------");
+
+		refer = new ReferenceBean();
+		refer.setServiceUri("netto-demo/$serviceDesc");
+		refer.setRouterFactory(routerFactory);
+		refer.setInterfaceClazz(ServiceDescApi.class);
+		refer.setTimeout(2 * 1000);
+		refer.setProtocol("tcp");
+
+		ServiceDescApi descObj = (ServiceDescApi) refer.getObject();
+		Set<String> services = descObj.findServices();
+		for (String service : services) {
+			System.out.println(service);
+		}
+		List<MethodDesc> methodDecss = descObj.findServiceMethods("helloService");
+		for (MethodDesc desc : methodDecss) {
+			System.out.println(desc);
+		}
+		System.out.println("service desc api end------------");
 	}
 
 }

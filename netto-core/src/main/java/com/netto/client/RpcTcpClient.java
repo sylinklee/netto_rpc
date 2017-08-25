@@ -34,11 +34,13 @@ public class RpcTcpClient extends AbstactRpcClient {
 		ServiceRequest req = new ServiceRequest();
 		req.setMethodName(method.getName());
 		req.setServiceName(this.getServiceName());
-		for (Object arg : args) {
-			if (arg != null) {
-				req.getArgs().add(gson.toJson(arg));
-			} else {
-				req.getArgs().add(null);
+		if (args != null) {
+			for (Object arg : args) {
+				if (arg != null) {
+					req.getArgs().add(gson.toJson(arg));
+				} else {
+					req.getArgs().add(null);
+				}
 			}
 		}
 		Socket socket = null;
