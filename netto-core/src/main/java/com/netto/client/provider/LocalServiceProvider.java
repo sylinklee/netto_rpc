@@ -10,8 +10,10 @@ public class LocalServiceProvider extends AbstractServiceProvider {
 		super(registry, serviceApp, serviceGroup);
 		this.pool = pool;
 	}
+
 	/*
 	 * (non-Javadoc)
+	 * 
 	 * @see com.netto.client.provider.ServiceProvider#getPool(java.lang.String)
 	 */
 	public ConnectPool<?> getPool(String protocol) {

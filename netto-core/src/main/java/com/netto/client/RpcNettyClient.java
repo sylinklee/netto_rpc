@@ -1,31 +1,27 @@
 package com.netto.client;
 
-import java.io.BufferedReader;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
-import java.net.Socket;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 
 import com.google.gson.Gson;
-import com.netto.client.pool.TcpConnectPool;
+import com.netto.client.channel.SyncChannel;
+import com.netto.client.pool.NettyConnectPool;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.context.ServiceRequest;
 import com.netto.context.ServiceResponse;
 import com.netto.filter.InvokeMethodFilter;
 
-public class RpcTcpClient extends AbstactRpcClient {
+public class RpcNettyClient extends AbstactRpcClient {
 	private static Logger logger = Logger.getLogger(RpcTcpClient.class);
-	private TcpConnectPool pool;
+	private NettyConnectPool pool;
 	private static Gson gson = new Gson();
 
-	public RpcTcpClient(ServiceProvider provider, List<InvokeMethodFilter> filters, String serviceName, int timeout) {
+	public RpcNettyClient(ServiceProvider provider, List<InvokeMethodFilter> filters, String serviceName, int timeout) {
 		super(provider, filters, serviceName, timeout);
-		this.pool = (TcpConnectPool) provider.getPool("tcp");
+		this.pool = (NettyConnectPool) provider.getPool("tcp");
+		this.pool.setTimeout(timeout);
 	}
 
 	@Override
@@ -42,20 +38,11 @@ public class RpcTcpClient extends AbstactRpcClient {
 				}
 			}
 		}
-		Socket socket = null;
+		SyncChannel channel = null;
 		try {
-			socket = this.pool.getResource();
-			socket.setSoTimeout(this.getTimeout());
-			OutputStream os = socket.getOutputStream();
-			OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-			osw.write(gson.toJson(req));
-			osw.flush();
-
-			InputStream is = socket.getInputStream();
-			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
-			BufferedReader br = new BufferedReader(isr);
-			String body = br.readLine();
-
+			channel = this.pool.getResource();
+			channel.writeAndFlush(gson.toJson(req));
+			String body = channel.readLine();
 			ServiceResponse res = gson.fromJson(body, ServiceResponse.class);
 			if (res.getSuccess()) {
 				return gson.fromJson(res.getBody(), method.getGenericReturnType());
@@ -67,7 +54,8 @@ public class RpcTcpClient extends AbstactRpcClient {
 			logger.error(e.getMessage(), e);
 			throw e;
 		} finally {
-			this.pool.release(socket);
+			this.pool.release(channel);
 		}
 	}
+
 }
