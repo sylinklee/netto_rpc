@@ -42,14 +42,22 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 	}
 
 	private class ClientSocketPoolFactory implements PooledObjectFactory<Socket> {
+		public ClientSocketPoolFactory() {
+
+		}
+
 		public PooledObject<Socket> makeObject() throws Exception {
 			// 简单策略随机取服务器，没有考虑权重
-			for (int i = 0; i < servers.size(); i++) {
+			List<ServiceAddress> temps = new ArrayList<ServiceAddress>();
+			temps.addAll(servers);
+
+			for (int i = temps.size() - 1; i >= 0; i--) {
 				try {
-					int index = new Random(System.currentTimeMillis()).nextInt(servers.size());
-					ServiceAddress server = servers.get(index);
+					int index = new Random(System.currentTimeMillis()).nextInt(temps.size());
+					ServiceAddress server = temps.get(index);
 					return new DefaultPooledObject<Socket>(new Socket(server.getIp(), server.getPort()));
 				} catch (Exception e) {
+					temps.remove(i);
 					;
 				}
 			}

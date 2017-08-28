@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Method;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -65,6 +66,13 @@ public class RpcTcpClient extends AbstactRpcClient {
 
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
+			if (e instanceof SocketException) {
+				try {
+					socket.close();
+				} catch (Throwable t) {
+					;
+				}
+			}
 			throw e;
 		} finally {
 			this.pool.release(socket);
