@@ -34,6 +34,9 @@ public class NettyServer implements InitializingBean, ApplicationContextAware {
 	private List<InvokeMethodFilter> filters;
 	private ApplicationContext applicationContext;
 
+	public NettyServer() {
+	}
+
 	public NettyServer(int port) {
 		this.port = port;
 	}
