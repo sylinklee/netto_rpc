@@ -9,10 +9,11 @@ import com.netto.server.NettyServer;
 public class NettoServer {
 
 	public static void main(String[] args) throws Exception {
-		Map<String, Object> serviceBeans = new HashMap<String, Object>();
-		serviceBeans.put("helloService", new HelloServiceImpl());
-		new NettyServer(12345, serviceBeans).afterPropertiesSet();
-
+		Map<String, Object> refBeans = new HashMap<String, Object>();
+		refBeans.put("helloService", new HelloServiceImpl());
+		NettyServer server = new NettyServer(12345);
+		server.setRefBeans(refBeans);
+		server.afterPropertiesSet();
 	}
 
 }

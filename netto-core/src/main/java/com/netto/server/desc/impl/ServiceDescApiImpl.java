@@ -11,23 +11,24 @@ import java.util.Map;
 import java.util.Set;
 
 import com.netto.server.desc.ServiceDescApi;
+import com.netto.server.handler.NettyServerHandler.NettoServiceBean;
 import com.netto.server.desc.ClassDesc;
 import com.netto.server.desc.FieldDesc;
 import com.netto.server.desc.MethodDesc;
 
 public class ServiceDescApiImpl implements ServiceDescApi {
-	private Map<String, Object> serviceBeans;
+	private Map<String, NettoServiceBean> serviceBeans;
 
-	public ServiceDescApiImpl(Map<String, Object> serviceBeans) {
+	public ServiceDescApiImpl(Map<String, NettoServiceBean> serviceBeans) {
 		this.serviceBeans = serviceBeans;
 	}
 
 	public List<MethodDesc> findServiceMethods(String serviceName) {
-		Object serviceObj = this.serviceBeans.get(serviceName);
+		NettoServiceBean serviceObj = this.serviceBeans.get(serviceName);
 		if (serviceObj == null)
 			return null;
 		List<MethodDesc> methodDescs = new ArrayList<MethodDesc>();
-		Method[] methods = serviceObj.getClass().getMethods();
+		Method[] methods = serviceObj.getObject().getClass().getMethods();
 		for (Method method : methods) {
 			if (method.getName().equals("getClass") || method.getName().equals("toString")
 					|| method.getName().equals("equals") || method.getName().equals("clone")
