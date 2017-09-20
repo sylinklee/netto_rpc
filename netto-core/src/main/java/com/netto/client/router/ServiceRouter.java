@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.netto.client.context.RpcContext;
 import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
+import com.netto.context.RpcContext;
 
 public class ServiceRouter {
 	private Map<String, String> routers;

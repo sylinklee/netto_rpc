@@ -9,7 +9,7 @@ import org.apache.log4j.Logger;
 import com.google.gson.Gson;
 import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
-import com.netto.filter.Invocation;
+import com.netto.context.Invocation;
 import com.netto.filter.InvokeMethodFilter;
 
 public abstract class AbstactRpcClient implements InvocationHandler {

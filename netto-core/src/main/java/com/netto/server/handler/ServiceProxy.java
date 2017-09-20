@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.google.gson.Gson;
+import com.netto.context.Invocation;
 import com.netto.context.ServiceRequest;
-import com.netto.filter.Invocation;
 import com.netto.filter.InvokeMethodFilter;
 
 public class ServiceProxy {
