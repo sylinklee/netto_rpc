@@ -9,6 +9,7 @@ import org.apache.log4j.Logger;
 import com.google.gson.Gson;
 import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
+import com.netto.filter.Invocation;
 import com.netto.filter.InvokeMethodFilter;
 
 public abstract class AbstactRpcClient implements InvocationHandler {
@@ -39,30 +40,30 @@ public abstract class AbstactRpcClient implements InvocationHandler {
 		return timeout;
 	}
 
-	private void invokeFiltersBefore(Object proxy, Method method, Object[] args) {
+	private void invokeFiltersBefore(Invocation invocation) {
 		if (this.filters == null) {
 			return;
 		}
 		for (InvokeMethodFilter filter : filters) {
-			filter.invokeBefore(proxy, method, args);
+			filter.invokeBefore(invocation);
 		}
 	}
 
-	private void invokeFiltersAfter(Object proxy, Method method, Object[] args) {
+	private void invokeFiltersAfter(Invocation invocation) {
 		if (this.filters == null) {
 			return;
 		}
 		for (InvokeMethodFilter filter : filters) {
-			filter.invokeAfter(proxy, method, args);
+			filter.invokeAfter(invocation);
 		}
 	}
 
-	private void invokeFiltersException(Object proxy, Method method, Object[] args, Throwable t) {
+	private void invokeFiltersException(Invocation invocation, Throwable t) {
 		if (this.filters == null) {
 			return;
 		}
 		for (InvokeMethodFilter filter : filters) {
-			filter.invokeException(proxy, method, args, t);
+			filter.invokeException(invocation, t);
 		}
 	}
 
@@ -70,15 +71,16 @@ public abstract class AbstactRpcClient implements InvocationHandler {
 
 	@Override
 	public final Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+		Invocation invocation = new Invocation(this.serviceName, proxy, method, args);
 		try {
-			this.invokeFiltersBefore(proxy, method, args);
+			this.invokeFiltersBefore(invocation);
 			return this.invokeMethod(method, args);
 		} catch (Exception e) {
-			this.invokeFiltersException(proxy, method, args, e);
+			this.invokeFiltersException(invocation, e);
 			throw e;
 		} finally {
 			try {
-				this.invokeFiltersAfter(proxy, method, args);
+				this.invokeFiltersAfter(invocation);
 			} catch (Exception e) {
 				;
 			}

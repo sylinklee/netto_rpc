@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.gson.Gson;
 import com.netto.context.ServiceRequest;
+import com.netto.filter.Invocation;
 import com.netto.filter.InvokeMethodFilter;
 
 public class ServiceProxy {
@@ -23,19 +24,20 @@ public class ServiceProxy {
 
 		Method m = getMethod(this.serviceBean.getClass(), this.req.getMethodName(), req.getArgs().size());
 		Object[] args = new Object[req.getArgs().size()];
+		Invocation invocation = new Invocation(this.req.getServiceName(), this.serviceBean, m, args);
 		try {
-			this.invokeFiltersBefore(this.serviceBean, m, args);
+			this.invokeFiltersBefore(invocation);
 			for (int i = 0; i < req.getArgs().size(); i++) {
 				args[i] = gson.fromJson(req.getArgs().get(i), m.getGenericParameterTypes()[i]);
 			}
 			Object res = m.invoke(this.serviceBean, args);
 			return gson.toJson(res);
 		} catch (Throwable t) {
-			this.invokeFiltersException(this.serviceBean, m, args, t);
+			this.invokeFiltersException(invocation, t);
 			throw t;
 		} finally {
 			try {
-				this.invokeFiltersAfter(this.serviceBean, m, args);
+				this.invokeFiltersAfter(invocation);
 			} catch (Exception e) {
 				;
 			}
@@ -51,30 +53,30 @@ public class ServiceProxy {
 		return null;
 	}
 
-	private void invokeFiltersBefore(Object proxy, Method method, Object[] args) {
+	private void invokeFiltersBefore(Invocation invocation) {
 		if (this.filters == null) {
 			return;
 		}
 		for (InvokeMethodFilter filter : filters) {
-			filter.invokeBefore(proxy, method, args);
+			filter.invokeBefore(invocation);
 		}
 	}
 
-	private void invokeFiltersAfter(Object proxy, Method method, Object[] args) {
+	private void invokeFiltersAfter(Invocation invocation) {
 		if (this.filters == null) {
 			return;
 		}
 		for (InvokeMethodFilter filter : filters) {
-			filter.invokeAfter(proxy, method, args);
+			filter.invokeAfter(invocation);
 		}
 	}
 
-	private void invokeFiltersException(Object proxy, Method method, Object[] args, Throwable t) {
+	private void invokeFiltersException(Invocation invocation, Throwable t) {
 		if (this.filters == null) {
 			return;
 		}
 		for (InvokeMethodFilter filter : filters) {
-			filter.invokeException(proxy, method, args, t);
+			filter.invokeException(invocation, t);
 		}
 	}
 }
