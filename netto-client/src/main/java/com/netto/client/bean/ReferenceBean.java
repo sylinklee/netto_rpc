@@ -76,7 +76,7 @@ public class ReferenceBean implements FactoryBean<Object> {
 	public Object getObject() throws Exception {
 		ServiceProvider provider = this.router.findProvider();
 		if (this.timeout <= 0) {
-			ServiceAPIClient apiClient = new ServiceAPIClient(provider, this);
+			ServiceAPIClient apiClient = new ServiceAPIClient(provider, this, 1000);
 			this.timeout = apiClient.getServerTimeout(this.serviceName);
 		}
 		InvocationHandler client;

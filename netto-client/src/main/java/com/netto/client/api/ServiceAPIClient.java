@@ -34,13 +34,14 @@ public class ServiceAPIClient {
 		this.timeout = timeout;
 	}
 
-	public ServiceAPIClient(ServiceProvider provider, ReferenceBean refer) {
+	public ServiceAPIClient(ServiceProvider provider, ReferenceBean refer,int timeout) {
+		this.timeout=timeout;
 		ReferenceBean apiRefer = new ReferenceBean();
 		apiRefer.setInterfaceClazz(ServiceDescApi.class);
 		apiRefer.setProtocol(refer.getProtocol());
 		apiRefer.setRouter(refer.getRouter());
 		apiRefer.setServiceName("$serviceDesc");
-		apiRefer.setTimeout(1000);
+		apiRefer.setTimeout(timeout);
 		try {
 			api = (ServiceDescApi) apiRefer.getObject();
 		} catch (Exception e) {
