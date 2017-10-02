@@ -165,7 +165,7 @@ public class NettoClient {
         refer.setServiceName("helloService");
         refer.setRouter(routerFactory.getObject());
         refer.setInterfaceClazz(HelloService.class);
-        refer.setTimeout(2000 * 1000);
+//        refer.setTimeout(2000 * 1000);
         refer.setProtocol("tcp");
 
         System.out.println("local_tcp begin-----------");
@@ -196,7 +196,7 @@ public class NettoClient {
         refer.setServiceName("$serviceDesc");
         refer.setRouter(routerFactory.getObject());
         refer.setInterfaceClazz(ServiceDescApi.class);
-        refer.setTimeout(2 * 1000);
+//        refer.setTimeout(2 * 1000);
         refer.setProtocol("tcp");
 
         ServiceDescApi descObj = (ServiceDescApi) refer.getObject();

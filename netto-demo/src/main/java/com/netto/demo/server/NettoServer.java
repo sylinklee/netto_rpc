@@ -5,22 +5,29 @@ import java.util.Map;
 
 import com.netto.demo.impl.HelloServiceImpl;
 import com.netto.server.NettyServer;
+import com.netto.server.bean.NettoServiceBean;
+import com.netto.server.bean.ServiceBean;
 
 public class NettoServer {
 
-   
-    
-    
 	public static void main(String[] args) throws Exception {
-        Map<String, Object> refBeans = new HashMap<String, Object>();
-        refBeans.put("helloService", new HelloServiceImpl());
-        NettyServer server = new NettyServer(9229);
-        server.setMaxWaitingQueueSize(2);
-        server.setNumOfHandlerWorker(1);
-        server.setMaxRequestSize(1024*1024);
-        server.setNumOfIOWorkerThreads(1);
-        server.setRefBeans(refBeans);
-        server.afterPropertiesSet();
+		Map<String, NettoServiceBean> serviceBeans = new HashMap<String, NettoServiceBean>();
+		ServiceBean serviceBean = new ServiceBean();
+		serviceBean.setRef("helloService");
+		serviceBean.setTimeout(2000);
+		serviceBean.setServiceName("helloService");
+		Object refBean = new HelloServiceImpl();
+
+		NettoServiceBean nettoBean = new NettoServiceBean(serviceBean, refBean);
+		serviceBeans.put("helloService", nettoBean);
+
+		NettyServer server = new NettyServer(9229);
+		server.setMaxWaitingQueueSize(2);
+		server.setNumOfHandlerWorker(1);
+		server.setMaxRequestSize(1024 * 1024);
+		server.setNumOfIOWorkerThreads(1);
+		server.setServiceBeans(serviceBeans);
+		server.afterPropertiesSet();
 
 	}
 

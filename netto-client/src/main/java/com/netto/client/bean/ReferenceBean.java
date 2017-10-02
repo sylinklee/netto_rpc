@@ -20,7 +20,6 @@ public class ReferenceBean implements FactoryBean<Object> {
 	private int timeout;
 	private ServiceRouter router;
 	private List<InvokeMethodFilter> filters;
-	private ServiceAPIClient apiClient;
 
 	public void setServiceName(String serviceName) {
 		this.serviceName = serviceName;
@@ -33,6 +32,7 @@ public class ReferenceBean implements FactoryBean<Object> {
 	public void setFilters(List<InvokeMethodFilter> filters) {
 		this.filters = filters;
 	}
+
 	public ServiceRouter getRouter() {
 		return router;
 	}
@@ -76,13 +76,7 @@ public class ReferenceBean implements FactoryBean<Object> {
 	public Object getObject() throws Exception {
 		ServiceProvider provider = this.router.findProvider();
 		if (this.timeout <= 0) {
-			if (apiClient == null) {
-				synchronized (apiClient) {
-					if (apiClient == null) {
-						apiClient = new ServiceAPIClient(provider, this);
-					}
-				}
-			}
+			ServiceAPIClient apiClient = new ServiceAPIClient(provider, this);
 			this.timeout = apiClient.getServerTimeout(this.serviceName);
 		}
 		InvocationHandler client;
