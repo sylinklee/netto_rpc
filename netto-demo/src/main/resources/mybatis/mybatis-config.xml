@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	<settings>
+		<setting name="lazyLoadingEnabled" value="false" />
+		<setting name="multipleResultSetsEnabled" value="true" />
+		<setting name="useColumnLabel" value="true" />
+		<setting name="useGeneratedKeys" value="true" />
+		<setting name="autoMappingBehavior" value="PARTIAL" />
+		<setting name="defaultStatementTimeout" value="20" />
+		<setting name="cacheEnabled" value="false" />
+		<setting name="defaultExecutorType" value="REUSE" />
+		<setting name="localCacheScope"  value="STATEMENT" />
+	</settings>
+	<mappers>
+		<mapper resource="mapper/mysql/scheduleTaskMapper.xml" />
+		<!-- <mapper resource="mapper/mybatis-env.xml" />
+		<mapper resource="mapper/mybatis-envDetail.xml" />
+		<mapper resource="mapper/mybatis-host.xml" />
+		<mapper resource="mapper/mybatis-app.xml" />
+		<mapper resource="mapper/mybatis-appDetail.xml" />
+		<mapper resource="mapper/mybatis-appType.xml" />
+		<mapper resource="mapper/mybatis-appHostRelation.xml" />
+		<mapper resource="mapper/mybatis-appConfig.xml" />
+		<mapper resource="mapper/mybatis-task.xml" />
+		<mapper resource="mapper/mybatis-taskLog.xml" />
+		<mapper resource="mapper/mysql/scheduleTaskMapper.xml" />	
+		<mapper resource="mapper/mybatis-job.xml" />	
+		<mapper resource="mapper/mybatis-jobConfig.xml" />	
+		<mapper resource="mapper/mybatis-jobDetail.xml" />	
+		<mapper resource="mapper/mybatis-jobLog.xml" />	
+		<mapper resource="mapper/mybatis-jobType.xml" />
+		<mapper resource="mapper/mybatis-jobRecord.xml" />	 -->	
+	</mappers>
+</configuration>

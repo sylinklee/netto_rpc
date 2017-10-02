@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="GBK"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.netto.schedule.dao.ScheduleTaskDao">
+    <resultMap id="taskDomain" type="com.netto.schedule.domain.ScheduleTask">
+        <result property="id" column="r_id" jdbcType="INTEGER"/>
+        <result property="createTime" column="create_time" jdbcType="TIMESTAMP"/>
+        <result property="taskType" column="task_type" jdbcType="VARCHAR"/>
+        <result property="taskKey1" column="task_key1" jdbcType="VARCHAR"/>
+        <result property="taskKey2" column="task_key2" jdbcType="VARCHAR"/>
+        <result property="bodyClass" column="body_class" jdbcType="VARCHAR"/>
+        <result property="taskBody" column="task_body" jdbcType="VARCHAR"/>
+        <result property="owner" column="owner" jdbcType="VARCHAR"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="executeCount" column="execute_count" jdbcType="INTEGER"/>
+        <result property="lastTime" column="last_time" jdbcType="TIMESTAMP"/>
+        <result property="regionNo" column="region_no" jdbcType="INTEGER"/>
+        <result property="remark" column="remark" jdbcType="VARCHAR"/>
+        <result property="fingerprint" column="fingerprint" jdbcType="VARCHAR"/>
+    </resultMap>
+    <resultMap id="monitorDomain" type="com.netto.schedule.monitor.ScheduleMonitorDTO">
+        <result property="backlogCount" column="backlogCount"/>
+        <result property="errorCount" column="errorCount"/>
+    </resultMap>
+
+
+    <select id="queryExecuteTasks" resultMap="taskDomain"
+            resultType="com.netto.schedule.domain.ScheduleTask"
+            parameterType="map">
+        select
+        r_id,create_time,task_type,task_key1,task_key2,body_class,task_body,owner,status,execute_count,last_time,region_no,remark,fingerprint
+        from schedule_task_${tableFix}
+        where
+        task_type=#{taskType,jdbcType=VARCHAR} 
+        
+		<if test="regions != null">
+		
+	        and region_no in
+	        <foreach item="region" index="index" collection="regions" open="(" separator="," close=")">
+	            #{region,jdbcType=INTEGER}
+	        </foreach>
+        
+        </if>
+        and (status=#{statusInit,jdbcType=INTEGER} or
+        (status=#{statusExecuting,jdbcType=INTEGER} and last_time &lt; DATE_SUB(now(),INTERVAL ${lastTime} SECOND) ) or
+        (status=#{statusError,jdbcType=INTEGER} and execute_count&lt;=#{retryCount,jdbcType=INTEGER} and last_time &lt;
+        DATE_SUB(now(),INTERVAL ${lastTime} SECOND) )
+        )
+        limit 0,${fetchCount}
+    </select>
+    <select id="queryTask" resultMap="taskDomain"
+            resultType="com.netto.schedule.domain.ScheduleTask"
+            parameterType="map">
+        SELECT
+            r_id,
+            create_time,
+            task_type,
+            task_key1,
+            task_key2,
+            body_class,
+            task_body,
+            owner,
+            status,
+            execute_count,
+            last_time,
+            region_no,
+            remark,
+            fingerprint
+        FROM schedule_task_${tableFix}
+        WHERE r_id = #{taskId,jdbcType=BIGINT}
+    </select>
+    <select id="deleteTask" parameterType="map">
+        DELETE FROM schedule_task_${tableFix} WHERE r_id = #{taskId,jdbcType=BIGINT}
+    </select>
+    <insert id="insertTask" parameterType="com.netto.schedule.domain.ScheduleTask" useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO
+            schedule_task_${tableFix}(create_time, task_type, task_key1, task_key2, body_class, task_body, owner,STATUS, last_time, region_no, remark, fingerprint)
+        VALUES (now(), #{taskType,jdbcType=VARCHAR}, #{taskKey1,jdbcType=VARCHAR}, #{taskKey2,jdbcType=VARCHAR}, #{bodyClass,jdbcType=VARCHAR}, #{taskBody,jdbcType=VARCHAR}, #{owner,jdbcType=VARCHAR}, #{status,jdbcType=INTEGER}, now(), #{regionNo,jdbcType=INTEGER}, #{remark,jdbcType=VARCHAR}, #{fingerprint,jdbcType=VARCHAR})
+    </insert>
+
+	<insert id="batchInsertTask" parameterType="map">
+		INSERT INTO
+		schedule_task_${tableFix}(create_time, task_type, task_key1, task_key2, body_class, task_body, owner,STATUS,
+		last_time, region_no, remark, fingerprint)
+		VALUES
+		<foreach collection="tasks" item="item" index="index"
+			separator=",">
+			<trim prefix="(" suffix=")" suffixOverrides=",">
+
+				now(), 
+				#{taskType,jdbcType=VARCHAR}, 
+				#{item.taskKey1,jdbcType=VARCHAR},
+				#{item.taskKey2,jdbcType=VARCHAR}, 
+				#{item.bodyClass,jdbcType=VARCHAR},
+				#{item.taskBody,jdbcType=VARCHAR}, 
+				#{item.owner,jdbcType=VARCHAR},
+				#{item.status,jdbcType=INTEGER}, 
+				now(), 
+				#{item.regionNo,jdbcType=INTEGER},
+				#{item.remark,jdbcType=VARCHAR}, 
+				#{item.fingerprint,jdbcType=VARCHAR}
+			</trim>
+		</foreach>
+	</insert>
+    
+    <update id="lockTasks" parameterType="map">
+        update schedule_task_${tableFix} SET
+        status=#{status,jdbcType=INTEGER},last_time=now() where r_id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </update>
+    <update id="errorTask" parameterType="map">
+        UPDATE schedule_task_${tableFix} SET
+        STATUS =#{status,jdbcType=INTEGER}, execute_count=execute_count+1, last_time=now(), remark=#{remark,jdbcType=VARCHAR}
+        WHERE r_id=#{id,jdbcType=INTEGER}
+    </update>
+
+    <update id="doneTask" parameterType="com.netto.schedule.domain.ScheduleTask">
+        UPDATE schedule_task_${tableFix} SET
+        STATUS =#{status,jdbcType=INTEGER}, last_time=now()
+        WHERE r_id = #{id,jdbcType=INTEGER}
+    </update>
+    <insert id="insertTableFix" parameterType="map">
+        INSERT INTO schedule_tablefix (task_type, table_fix)
+        VALUES (#{taskType,jdbcType=VARCHAR}, #{tableFix,jdbcType=INTEGER})
+    </insert>
+    <select id="queryTableFixs" resultType="map">
+        SELECT task_type, table_fix FROM schedule_tablefix
+    </select>
+
+    <select id="queryMonitorCount" resultMap="monitorDomain">
+        SELECT
+        (SELECT COUNT(1) FROM schedule_task_${tableFix} WHERE task_type=#{taskType} and STATUS =0) AS backlogCount,
+        (SELECT COUNT(1) FROM schedule_task_${tableFix} WHERE task_type=#{taskType} and  STATUS =10
+          AND execute_count &gt;= #{dataRetryCount,jdbcType=INTEGER}
+        ) AS errorCount
+    </select>
+    <select id="queryByFingerprint" parameterType="java.lang.String" resultMap="taskDomain">
+      SELECT r_id,
+            create_time,
+            task_type,
+            task_key1,
+            task_key2,
+            body_class,
+            task_body,
+            status,
+            execute_count,
+            last_time,
+            region_no,
+            remark,
+            fingerprint
+      FROM schedule_task_${tableFix}
+      WHERE fingerprint=#{fingerprint}
+    </select>
+
+    <select id="queryInitCount" resultType="int">
+      SELECT COUNT(1)
+      FROM schedule_task_${tableFix}
+      WHERE  task_type=#{taskType} and  status=0 AND execute_count=0 AND create_time &lt;= DATE_SUB(now(),INTERVAL 60 SECOND);
+    </select>
+
+    <update id="updateTaskByfingerPrint">
+        UPDATE schedule_task_${tableFix} SET STATUS =#{status,jdbcType=INTEGER}, execute_count=#{executeCount,jdbcType=INTEGER}
+        WHERE fingerprint=#{fingerPrint,jdbcType=VARCHAR}
+    </update>
+    
+    <select id="listDoneTask" parameterType="map"  resultType="int">
+      SELECT r_id
+      FROM schedule_task_${tableFix}
+      WHERE status = 2 and task_type=#{taskType} and last_time &lt; #{lastDate,jdbcType=TIMESTAMP} order by r_id limit 0,${fetchCount}
+    </select>    
+    
+    <delete id="cleanUp" parameterType="map">
+    	delete from schedule_task_${tableFix} where r_id in
+        <foreach item="id" index="index" collection="ids" open="(" separator="," close=")">
+            #{id,jdbcType=BIGINT}
+        </foreach>
+    </delete>       
+    
+    <select id="optimizeTable" parameterType="map" resultType="map">
+    	optimize table schedule_task_${tableFix}
+    </select>
+</mapper>
