@@ -1,4 +1,4 @@
-package com.netto.server.handler.impl;
+package com.netto.server.handler;
 
 import java.io.IOException;
 import java.io.StringWriter;
@@ -29,7 +29,6 @@ import com.netto.core.util.SignatureVerifier;
 import com.netto.server.bean.NettoServiceBean;
 import com.netto.server.bean.ServiceBean;
 import com.netto.server.desc.impl.ServiceDescApiImpl;
-import com.netto.server.handler.NettoServiceChannelHandler;
 import com.netto.server.handler.proxy.ServiceProxy;
 import com.netto.server.util.Constants;
 

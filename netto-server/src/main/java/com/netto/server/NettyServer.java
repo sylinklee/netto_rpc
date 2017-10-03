@@ -19,8 +19,8 @@ import com.netto.core.message.NettoMessageDecoder;
 import com.netto.server.bean.NettoServiceBean;
 import com.netto.server.bean.ServiceBean;
 import com.netto.server.handler.NettoServiceChannelHandler;
-import com.netto.server.handler.NettyNettoMessageHandler;
 import com.netto.server.handler.impl.AsynchronousChannelHandler;
+import com.netto.server.handler.impl.NettyNettoMessageHandler;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;

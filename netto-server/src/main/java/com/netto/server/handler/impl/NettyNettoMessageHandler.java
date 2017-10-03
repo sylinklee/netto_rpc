@@ -1,4 +1,4 @@
-package com.netto.server.handler;
+package com.netto.server.handler.impl;
 
 import java.io.IOException;
 
@@ -6,6 +6,7 @@ import org.apache.log4j.Logger;
 
 import com.netto.core.exception.NettoDecoderException;
 import com.netto.core.message.NettoMessage;
+import com.netto.server.handler.NettoServiceChannelHandler;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
