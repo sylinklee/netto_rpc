@@ -7,8 +7,10 @@ import java.lang.reflect.Type;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -113,7 +115,7 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 	public int queryServiceTimeout(String serviceName) {
 		NettoServiceBean serviceObj = this.serviceBeans.get(serviceName);
 		if (serviceObj == null)
-			throw new RuntimeException(serviceName +" don't exists!");
+			throw new RuntimeException(serviceName + " don't exists!");
 		return serviceObj.getServiceBean().getTimeout();
 	}
 
@@ -123,11 +125,24 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 	}
 
 	@Override
-	public Set<String> findServicesByInterface(String token, String interfaceClazz) {
+	public Set<String> findServicesByInterface(String token, String interfaceClazzStr) {
 		if (!this.checkToken(token)) {
 			throw new RuntimeException("token is error！ ");
 		}
-		return null;
+		Set<String> services = new HashSet<String>();
+		Class<?> interfaceClazz;
+		try {
+			interfaceClazz = Class.forName(interfaceClazzStr);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException(e);
+		}
+		for (String key : this.serviceBeans.keySet()) {
+			Class<?>[] interfaces = this.serviceBeans.get(key).getObjectType().getInterfaces();
+			if (Arrays.asList(interfaces).contains(interfaceClazz)) {
+				services.add(key);
+			}
+		}
+		return services;
 	}
 
 }
