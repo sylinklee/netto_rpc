@@ -49,9 +49,5 @@ public class NettoFrame {
     public void setBody(ByteBuf body) {
         this.body = body;
     }
-    
-    
-    
-    
-    
+      
 }

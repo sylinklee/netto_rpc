@@ -1,6 +1,6 @@
 package com.netto.server.handler;
 
-import com.netto.core.message.NettoMessage;
+import com.netto.server.message.NettoMessage;
 
 import io.netty.channel.ChannelHandlerContext;
 

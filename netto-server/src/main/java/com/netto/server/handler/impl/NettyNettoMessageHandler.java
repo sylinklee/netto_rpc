@@ -5,8 +5,8 @@ import java.io.IOException;
 import org.apache.log4j.Logger;
 
 import com.netto.core.exception.NettoDecoderException;
-import com.netto.core.message.NettoMessage;
 import com.netto.server.handler.NettoServiceChannelHandler;
+import com.netto.server.message.NettoMessage;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
