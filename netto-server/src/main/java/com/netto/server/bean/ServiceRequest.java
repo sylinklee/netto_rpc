@@ -1,4 +1,4 @@
-package com.netto.core.context;
+package com.netto.server.bean;
 
 import java.util.List;
 

@@ -2,7 +2,6 @@ package com.netto.client;
 
 import java.io.StringWriter;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.http.HttpEntity;
@@ -19,7 +18,6 @@ import com.netto.client.pool.HttpConnectPool;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.client.util.JsonMapperUtil;
 import com.netto.core.context.RpcContext;
-import com.netto.core.context.ServiceRequest;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.filter.InvokeMethodFilter;
 import com.netto.core.message.NettoFrame;
@@ -34,11 +32,11 @@ public class RpcHttpClient extends AbstactRpcClient {
 
 	@Override
 	protected Object invokeMethod(Method method, Object[] args) throws Throwable {
-		ServiceRequest req = new ServiceRequest();
-		req.setMethodName(method.getName());
-		req.setServiceName(this.getServiceName());
-		if (args != null)
-			req.setArgs(Arrays.asList(args));
+//		ServiceRequest req = new ServiceRequest();
+//		req.setMethodName(method.getName());
+//		req.setServiceName(this.getServiceName());
+//		if (args != null)
+//			req.setArgs(Arrays.asList(args));
 
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(this.getTimeout())
 				.setConnectionRequestTimeout(this.getTimeout()).setSocketTimeout(this.getTimeout()).build();
@@ -56,7 +54,7 @@ public class RpcHttpClient extends AbstactRpcClient {
 			ObjectMapper mapper = JsonMapperUtil.getJsonMapper();
 			// body
 			StringWriter writer = new StringWriter();
-			mapper.writeValue(writer, req);
+			mapper.writeValue(writer, args);
 			String requestBody = writer.toString();
 			if (this.doSignature) {
 				String signature = this.createSignature(requestBody);

@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.netto.core.context.ServiceRequest;
+import com.netto.server.bean.ServiceRequest;
 
 public class ServiceRequestJacksonDeserializer extends StdDeserializer<ServiceRequest> {
     

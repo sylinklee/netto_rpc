@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.client.util.JsonMapperUtil;
-import com.netto.core.context.ServiceRequest;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.filter.InvokeMethodFilter;
 import com.netto.core.message.NettoFrame;
@@ -33,11 +32,11 @@ public class RpcTcpClient extends AbstactRpcClient {
 
 	@Override
 	protected Object invokeMethod(Method method, Object[] args) throws Throwable {
-		ServiceRequest req = new ServiceRequest();
-		req.setMethodName(method.getName());
-		req.setServiceName(this.getServiceName());
-		if (args != null)
-			req.setArgs(Arrays.asList(args));
+		// ServiceRequest req = new ServiceRequest();
+		// req.setMethodName(method.getName());
+		// req.setServiceName(this.getServiceName());
+		// if (args != null)
+		// req.setArgs(Arrays.asList(args));
 
 		Socket socket = null;
 		try {
@@ -45,10 +44,13 @@ public class RpcTcpClient extends AbstactRpcClient {
 			socket = this.pool.getResource();
 			socket.setSoTimeout(this.getTimeout());
 			OutputStream os = socket.getOutputStream();
-			String requestBody = mapper.writeValueAsString(req);
+			String requestBody = mapper.writeValueAsString(args);
 			byte[] byteBody = requestBody.getBytes("UTF-8");
 			StringWriter headerWriter = new StringWriter(128);
+			headerWriter.append("service:").append(this.getServiceName()).append("\r\n");
+			headerWriter.append("method:").append(method.getName());
 			if (this.doSignature) {
+				headerWriter.append("\r\n");
 				String signature = this.createSignature(requestBody);
 				headerWriter.append(NettoFrame.SIGNATURE_HEADER).append(":").append(signature);
 			}

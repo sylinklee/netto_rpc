@@ -12,7 +12,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.client.bean.ReferenceBean;
 import com.netto.client.provider.ServiceProvider;
 import com.netto.client.util.JsonMapperUtil;
-import com.netto.core.context.ServiceRequest;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.message.NettoFrame;
 import com.netto.service.desc.ServiceDescApi;
@@ -24,7 +23,7 @@ import com.netto.service.desc.ServiceDescApi;
  *
  */
 public class ServiceAPIClient {
-//	private static Logger logger = Logger.getLogger(ServiceAPIClient.class);
+	// private static Logger logger = Logger.getLogger(ServiceAPIClient.class);
 	private ServiceDescApi api;
 	private Socket socket;
 	private int timeout;
@@ -34,8 +33,8 @@ public class ServiceAPIClient {
 		this.timeout = timeout;
 	}
 
-	public ServiceAPIClient(ServiceProvider provider, ReferenceBean refer,int timeout) {
-		this.timeout=timeout;
+	public ServiceAPIClient(ServiceProvider provider, ReferenceBean refer, int timeout) {
+		this.timeout = timeout;
 		ReferenceBean apiRefer = new ReferenceBean();
 		apiRefer.setInterfaceClazz(ServiceDescApi.class);
 		apiRefer.setProtocol(refer.getProtocol());
@@ -60,16 +59,15 @@ public class ServiceAPIClient {
 			return api.pingService(data);
 		}
 		try {
-			ServiceRequest req = new ServiceRequest();
-			req.setMethodName("pingService");
-			req.setServiceName("$serviceDesc");
-			req.setArgs(Arrays.asList(new Object[] { data }));
+			Object[] args = new Object[] { data };
 			socket.setSoTimeout(timeout);
 			OutputStream os = socket.getOutputStream();
 			ObjectMapper mapper = JsonMapperUtil.getJsonMapper();
-			String requestBody = mapper.writeValueAsString(req);
+			String requestBody = mapper.writeValueAsString(args);
 			byte[] byteBody = requestBody.getBytes("UTF-8");
 			StringWriter headerWriter = new StringWriter(128);
+			headerWriter.append("service:").append("$serviceDesc").append("\r\n");
+			headerWriter.append("method:").append("pingService");
 			byte[] headerContentBytes = headerWriter.toString().getBytes("UTF-8");
 
 			String header = String.format("%s:%d/%d/%d", NettoFrame.NETTO_HEADER_START, 2, headerContentBytes.length,

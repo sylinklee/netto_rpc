@@ -4,9 +4,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 import com.netto.core.context.Invocation;
-import com.netto.core.context.ServiceRequest;
 import com.netto.core.filter.InvokeMethodFilter;
 import com.netto.server.bean.NettoServiceBean;
+import com.netto.server.bean.ServiceRequest;
 
 public class ServiceProxy {
 	private ServiceRequest req;

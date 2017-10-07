@@ -3,6 +3,7 @@ package com.netto.server.handler;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -15,8 +16,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.netto.core.context.ServiceRequest;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.exception.NettoIOException;
 import com.netto.core.exception.RemoteAccessException;
@@ -26,10 +25,11 @@ import com.netto.core.util.RandomStrGenerator;
 import com.netto.core.util.SignatureVerifier;
 import com.netto.server.bean.NettoServiceBean;
 import com.netto.server.bean.ServiceBean;
+import com.netto.server.bean.ServiceRequest;
 import com.netto.server.desc.impl.ServiceDescApiImpl;
 import com.netto.server.handler.proxy.ServiceProxy;
+import com.netto.server.message.ArgsDeserializer;
 import com.netto.server.message.NettoMessage;
-import com.netto.server.message.ServiceRequestJacksonDeserializer;
 import com.netto.server.util.Constants;
 
 import io.netty.channel.ChannelFuture;
@@ -43,7 +43,7 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 	private List<InvokeMethodFilter> filters;
 
 	private long reponseWriteTimeout = 10;// 3 seconds;
-
+	private ArgsDeserializer argDeser;
 	private ObjectMapper objectMapper;
 
 	@Override
@@ -79,20 +79,22 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 		objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
 
 		objectMapper.setSerializationInclusion(Include.NON_NULL);
-		objectMapper.setSerializationInclusion(Include.NON_DEFAULT);
+		// objectMapper.setSerializationInclusion(Include.NON_DEFAULT);
 
-		ServiceRequestJacksonDeserializer deserializer = new ServiceRequestJacksonDeserializer(ServiceRequest.class,
-				objectMapper);
+		// ServiceRequestJacksonDeserializer deserializer = new
+		// ServiceRequestJacksonDeserializer(ServiceRequest.class,
+		// objectMapper);
+		this.argDeser = new ArgsDeserializer(this.objectMapper);
+		// SimpleModule simpleModule = new SimpleModule();
+		//
+		// simpleModule.addDeserializer(Object[].class, this.argDeser);
+		// objectMapper.registerModule(simpleModule);
+
 		for (String key : serviceBeans.keySet()) {
 			NettoServiceBean bean = serviceBeans.get(key);
 			Class<?> clazz = bean.getObject().getClass();
-			deserializer.registerMethodParameterTypes(key, clazz);
+			this.argDeser.registerMethodParameterTypes(key, clazz);
 		}
-
-		SimpleModule simpleModule = new SimpleModule();
-
-		simpleModule.addDeserializer(ServiceRequest.class, deserializer);
-		objectMapper.registerModule(simpleModule);
 
 	}
 
@@ -160,9 +162,16 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 
 			boolean verified = this.verifySignature(message);
 			if (verified) {
-
-				ServiceRequest reqObj = objectMapper.readValue(new String(message.getBody(), "utf-8"),
-						ServiceRequest.class);
+				ServiceRequest reqObj = new ServiceRequest();
+				reqObj.setServiceName(message.getHeaders().get("service"));
+				reqObj.setMethodName(message.getHeaders().get("method"));
+				// ServiceRequest reqObj = objectMapper.readValue(new
+				// String(message.getBody(), "utf-8"),
+				// ServiceRequest.class);
+				// Object[] args = objectMapper.readValue(new
+				// String(message.getBody(), "utf-8"), Object[].class);
+				Object[] args = this.argDeser.deserialize(message);
+				reqObj.setArgs(Arrays.asList(args));
 				if (serviceBeans.containsKey(reqObj.getServiceName())) {
 					ServiceProxy proxy = new ServiceProxy(reqObj, serviceBeans.get(reqObj.getServiceName()), filters);
 
