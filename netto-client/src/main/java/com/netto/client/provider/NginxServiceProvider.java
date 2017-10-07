@@ -20,8 +20,8 @@ import com.netto.client.pool.ConnectPool;
 import com.netto.client.pool.HttpConnectPool;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.router.ServiceRouter;
+import com.netto.client.util.JsonMapperUtil;
 import com.netto.core.context.ServiceAddressGroup;
-import com.netto.core.util.JsonMapperUtil;
 
 public class NginxServiceProvider extends AbstractServiceProvider {
 	private static Logger logger = Logger.getLogger(NginxServiceProvider.class);
