@@ -162,8 +162,8 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 			boolean verified = this.verifySignature(message);
 			if (verified) {
 				ServiceRequest reqObj = new ServiceRequest();
-				reqObj.setServiceName(message.getHeaders().get("service"));
-				reqObj.setMethodName(message.getHeaders().get("method"));
+				reqObj.setServiceName(message.getHeaders().get(Constants.SERVICE_HEADER));
+				reqObj.setMethodName(message.getHeaders().get(Constants.METHOD_HEADER));
 				// ServiceRequest reqObj = objectMapper.readValue(new
 				// String(message.getBody(), "utf-8"),
 				// ServiceRequest.class);
