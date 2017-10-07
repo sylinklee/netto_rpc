@@ -19,7 +19,7 @@ public class JsonMapperUtil {
                     objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                     objectMapper.configure(SerializationFeature.WRITE_NULL_MAP_VALUES,false);
                     objectMapper.setSerializationInclusion(Include.NON_NULL);
-                    objectMapper.setSerializationInclusion(Include.NON_DEFAULT);
+                    //objectMapper.setSerializationInclusion(Include.NON_DEFAULT);
                 }
             }
         }
