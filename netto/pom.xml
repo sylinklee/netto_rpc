@@ -24,14 +24,6 @@
 			<groupId>com.netto</groupId>
 			<artifactId>netto-server</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.netto</groupId>
-			<artifactId>netto-demo</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netto</groupId>
-			<artifactId>netto-schedule-jdbc</artifactId>
-		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
@@ -89,9 +81,6 @@
 									<include>com.netto:netto-core</include>
 									<include>com.netto:netto-client</include>
 									<include>com.netto:netto-server</include>
-									<include>com.netto:netto-demo</include>
-									<include>com.netto:netto-schedule-api</include>
-									<include>com.netto:netto-schedule-jdbc</include>
 								</includes>
 							</artifactSet>
 						</configuration>

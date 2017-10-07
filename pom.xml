@@ -9,7 +9,6 @@
 		<module>netto-core</module>
 		<module>netto-demo</module>
 		<module>netto</module>
-		<module>netto-schedule</module>
 		<module>netto-server</module>
 		<module>netto-client</module>
 	</modules>
@@ -30,7 +29,8 @@
 		<jackson.version>2.9.0</jackson.version>
 		<netty.version>4.1.13.Final</netty.version>
 		<log4j.version>1.2.17</log4j.version>
-		<commons-pool2-version>2.4.2</commons-pool2-version>
+		<commons-pool2.version>2.4.2</commons-pool2.version>
+		<mybatis-spring.version>1.2.1</mybatis-spring.version>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -56,17 +56,7 @@
 			</dependency>
 			<dependency>
 				<groupId>com.netto</groupId>
-				<artifactId>netto-demo</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.netto</groupId>
-				<artifactId>netto-schedule-api</artifactId>
-				<version>${project.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>com.netto</groupId>
-				<artifactId>netto-schedule-jdbc</artifactId>
+				<artifactId>netto</artifactId>
 				<version>${project.version}</version>
 			</dependency>
 			<dependency>
@@ -77,12 +67,7 @@
 			<dependency>
 				<groupId>org.apache.commons</groupId>
 				<artifactId>commons-pool2</artifactId>
-				<version>${commons-pool2-version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.springframework</groupId>
-				<artifactId>spring-jdbc</artifactId>
-				<version>${spring.version}</version>
+				<version>${commons-pool2.version}</version>
 			</dependency>
 
 			<dependency>

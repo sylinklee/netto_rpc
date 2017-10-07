@@ -16,8 +16,6 @@ import com.netto.core.util.DesUtil;
 import com.netto.demo.Book;
 import com.netto.demo.HelloService;
 import com.netto.demo.User;
-import com.netto.schedule.IScheduleTaskProcess;
-import com.netto.schedule.ScheduleParam;
 import com.netto.service.desc.MethodDesc;
 import com.netto.service.desc.ServiceDescApi;
 
@@ -31,31 +29,6 @@ public class NettoClient {
 		latch.await();
 	}
 
-	public static void nginx_schedule() throws Exception {
-		routerFactory = new ServiceRouterFactory();
-		routerFactory.setRegistry("http://127.0.0.1:8330/api/");
-		routerFactory.setServiceApp("myservice");
-		routerFactory.setServiceGroup("*");
-		routerFactory.afterPropertiesSet();
-		ReferenceBean refer = new ReferenceBean();
-		refer.setServiceName("helloSchedule");
-		refer.setInterfaceClazz(IScheduleTaskProcess.class);
-		refer.setTimeout(20 * 1000);
-		refer.setProtocol("http");
-		refer.setRouter(routerFactory.getObject());
-
-		IScheduleTaskProcess process = (IScheduleTaskProcess) refer.getObject();
-		ScheduleParam param = new ScheduleParam();
-		param.setClientThreadCount(5);
-		param.setDataRetryCount(3);
-		param.setExecuteCount(5);
-		param.setFetchCount(100);
-		param.setRetryTimeInterval(2);
-		param.setServerArg("abc:cdt");
-
-		int a = process.execute(param, 2);
-		System.out.println(a);
-	}
 
 	public static void nginx_http_tcp() throws Exception {
 

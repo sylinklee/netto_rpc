@@ -7,58 +7,15 @@
 		<version>1.0.0</version>
 	</parent>
 	<artifactId>netto-demo</artifactId>
-
-	<properties>
-		<build.file.encoding>UTF-8</build.file.encoding>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<maven.compiler.encoding>UTF-8</maven.compiler.encoding>
-		<spring.version>4.1.6.RELEASE</spring.version>
-		<mybatis-spring.version>1.2.2</mybatis-spring.version>
-		<mybatis.version>3.2.8</mybatis.version>
-		<bone.version>1.0-SNAPSHOT</bone.version>
-		<httpclient.version>4.1.1</httpclient.version>
-		<velocity.version>1.7</velocity.version>
-		<log4j.version>1.2.17</log4j.version>
-
-		<!-- json -->
-		<fastjson.version>1.2.7</fastjson.version>
-		<!--service -->
-		<dubbo.version>2.9.2x</dubbo.version>
-		<!-- schedule -->
-		<schedule.version>2.8.12x-SNAPSHOT</schedule.version>
-		<!--mq -->
-		<rocketmq.version>3.2.6</rocketmq.version>
-		<!--redis -->
-		<jedis.version>2.7.3</jedis.version>
-
-		<!-- data base -->
-		<dbcp.version>1.4</dbcp.version>
-		<mysql.driver.version>5.1.37</mysql.driver.version>
-		<guava.version>11.0.1</guava.version>
-		<jdk.version>1.8</jdk.version>
-		<hibernate-validator.version>5.2.2.Final</hibernate-validator.version>
-
-		<maven.deploy.plugin.version>2.8.2</maven.deploy.plugin.version>
-		<skip.maven.deploy>false</skip.maven.deploy>
-	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>com.netto</groupId>
-			<artifactId>netto-client</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>com.netto</groupId>
-			<artifactId>netto-server</artifactId>
+			<artifactId>netto</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-jdbc</artifactId>
-		</dependency>
-
 		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
@@ -66,16 +23,6 @@
 			<scope>test</scope>
 		</dependency>
 
-		<dependency>
-			<groupId>com.netto</groupId>
-			<artifactId>netto-schedule-jdbc</artifactId>
-		</dependency>
-
-		<dependency>
-			<groupId>com.netto</groupId>
-			<artifactId>netto-schedule-api</artifactId>
-
-		</dependency>
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context-support</artifactId>
