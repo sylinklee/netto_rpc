@@ -21,17 +21,17 @@ public class ServiceProxy {
 	}
 
 	public Object callService() throws Throwable {
-	    int size = req.getArgs()==null?0:req.getArgs().size();
-	   
+		int size = req.getArgs() == null ? 0 : req.getArgs().length;
+
 		Method m = getMethod(this.serviceBean.getObject().getClass(), this.req.getMethodName(), size);
-		Object[] args = req.getArgs()==null?new Object[0]:req.getArgs().toArray();
-		Invocation invocation = new Invocation(this.req.getServiceName(), this.serviceBean, m, args);
+		Invocation invocation = new Invocation(this.req.getServiceName(), this.serviceBean, m, req.getArgs());
 		try {
 			this.invokeFiltersBefore(invocation);
-//			for (int i = 0; i < req.getArgs().size(); i++) {
-//				args[i] = gson.fromJson(req.getArgs().get(i), m.getGenericParameterTypes()[i]);
-//			}
-			Object res = m.invoke(this.serviceBean.getObject(), args);
+			// for (int i = 0; i < req.getArgs().size(); i++) {
+			// args[i] = gson.fromJson(req.getArgs().get(i),
+			// m.getGenericParameterTypes()[i]);
+			// }
+			Object res = m.invoke(this.serviceBean.getObject(), req.getArgs());
 			return res;
 		} catch (Throwable t) {
 			this.invokeFiltersException(invocation, t);

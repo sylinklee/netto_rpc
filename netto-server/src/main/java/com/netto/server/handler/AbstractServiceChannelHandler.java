@@ -3,7 +3,6 @@ package com.netto.server.handler;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -171,7 +170,7 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 				// Object[] args = objectMapper.readValue(new
 				// String(message.getBody(), "utf-8"), Object[].class);
 				Object[] args = this.argDeser.deserialize(message);
-				reqObj.setArgs(Arrays.asList(args));
+				reqObj.setArgs(args);
 				if (serviceBeans.containsKey(reqObj.getServiceName())) {
 					ServiceProxy proxy = new ServiceProxy(reqObj, serviceBeans.get(reqObj.getServiceName()), filters);
 
