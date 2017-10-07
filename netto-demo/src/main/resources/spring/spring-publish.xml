@@ -13,11 +13,6 @@
 		 <property name="serviceName" value="helloService"/>
 	</bean>
 	
-	<bean class="com.netto.server.bean.ServiceBean">
-		 <property name="ref" value="helloSchedule"/>
-		 <property name="serviceName" value="helloSchedule"/>
-	</bean>	
-	
 	<bean class="com.netto.server.NettyServer">
 		<property name="port" value="${netto.port}"/>	
 		<property name="backlog" value="${netto.backlog}"/>		
