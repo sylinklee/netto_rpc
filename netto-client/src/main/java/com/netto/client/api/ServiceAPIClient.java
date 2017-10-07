@@ -14,6 +14,7 @@ import com.netto.client.provider.ServiceProvider;
 import com.netto.client.util.JsonMapperUtil;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.message.NettoFrame;
+import com.netto.core.util.Constants;
 import com.netto.service.desc.ServiceDescApi;
 
 /**
@@ -66,8 +67,9 @@ public class ServiceAPIClient {
 			String requestBody = mapper.writeValueAsString(args);
 			byte[] byteBody = requestBody.getBytes("UTF-8");
 			StringWriter headerWriter = new StringWriter(128);
-			headerWriter.append("service:").append("$serviceDesc").append("\r\n");
-			headerWriter.append("method:").append("pingService");
+			headerWriter.append(Constants.SERVICE_HEADER).append(":").append("$serviceDesc").append("\r\n");
+			headerWriter.append(Constants.METHOD_HEADER).append(":").append("pingService").append("\r\n");
+			headerWriter.append(Constants.ARGSLEN_HEADER).append(":").append("1");
 			byte[] headerContentBytes = headerWriter.toString().getBytes("UTF-8");
 
 			String header = String.format("%s:%d/%d/%d", NettoFrame.NETTO_HEADER_START, 2, headerContentBytes.length,

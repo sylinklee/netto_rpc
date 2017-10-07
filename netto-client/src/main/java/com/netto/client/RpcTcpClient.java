@@ -20,6 +20,7 @@ import com.netto.client.util.JsonMapperUtil;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.filter.InvokeMethodFilter;
 import com.netto.core.message.NettoFrame;
+import com.netto.core.util.Constants;
 
 public class RpcTcpClient extends AbstactRpcClient {
 	private static Logger logger = Logger.getLogger(RpcTcpClient.class);
@@ -47,8 +48,14 @@ public class RpcTcpClient extends AbstactRpcClient {
 			String requestBody = mapper.writeValueAsString(args);
 			byte[] byteBody = requestBody.getBytes("UTF-8");
 			StringWriter headerWriter = new StringWriter(128);
-			headerWriter.append("service:").append(this.getServiceName()).append("\r\n");
-			headerWriter.append("method:").append(method.getName());
+			headerWriter.append(Constants.SERVICE_HEADER).append(":").append(this.getServiceName()).append("\r\n");
+			headerWriter.append(Constants.METHOD_HEADER).append(":").append(method.getName()).append("\r\n");
+			if (args != null) {
+				headerWriter.append(Constants.ARGSLEN_HEADER).append(":").append(args.length + "");
+			} else {
+				headerWriter.append(Constants.ARGSLEN_HEADER).append(":0");
+			}
+
 			if (this.doSignature) {
 				headerWriter.append("\r\n");
 				String signature = this.createSignature(requestBody);

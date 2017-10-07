@@ -1,5 +1,6 @@
 package com.netto.demo.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -43,4 +44,13 @@ public class HelloServiceImpl implements HelloService {
     public String sayByeBye(int i) {
         return "88 \r\n ";
     }
+
+
+
+
+	@Override
+	public List<User> queryUsers() {
+		List<User> users=new ArrayList<User>();
+		return users;
+	}
 }

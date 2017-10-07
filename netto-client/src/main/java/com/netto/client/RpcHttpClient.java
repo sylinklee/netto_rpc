@@ -21,6 +21,7 @@ import com.netto.core.context.RpcContext;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.filter.InvokeMethodFilter;
 import com.netto.core.message.NettoFrame;
+import com.netto.core.util.Constants;
 
 public class RpcHttpClient extends AbstactRpcClient {
 	private HttpConnectPool pool;
@@ -32,11 +33,11 @@ public class RpcHttpClient extends AbstactRpcClient {
 
 	@Override
 	protected Object invokeMethod(Method method, Object[] args) throws Throwable {
-//		ServiceRequest req = new ServiceRequest();
-//		req.setMethodName(method.getName());
-//		req.setServiceName(this.getServiceName());
-//		if (args != null)
-//			req.setArgs(Arrays.asList(args));
+		// ServiceRequest req = new ServiceRequest();
+		// req.setMethodName(method.getName());
+		// req.setServiceName(this.getServiceName());
+		// if (args != null)
+		// req.setArgs(Arrays.asList(args));
 
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(this.getTimeout())
 				.setConnectionRequestTimeout(this.getTimeout()).setSocketTimeout(this.getTimeout()).build();
@@ -56,6 +57,11 @@ public class RpcHttpClient extends AbstactRpcClient {
 			StringWriter writer = new StringWriter();
 			mapper.writeValue(writer, args);
 			String requestBody = writer.toString();
+			if (args != null) {
+				post.addHeader(Constants.ARGSLEN_HEADER, args.length + "");
+			} else {
+				post.addHeader(Constants.ARGSLEN_HEADER, "0");
+			}
 			if (this.doSignature) {
 				String signature = this.createSignature(requestBody);
 				post.addHeader(NettoFrame.SIGNATURE_HEADER, signature);

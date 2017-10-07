@@ -3,51 +3,48 @@ package com.netto.core.message;
 import io.netty.buffer.ByteBuf;
 
 public class NettoFrame {
-    public static String NETTO_HEADER_START = "NETTO:";
-    
-    public static int HEADER_LENGTH = 64;
-    
-    
-    public static String SIGNATURE_HEADER= "Netto-Signature";
+	public static String NETTO_HEADER_START = "NETTO:";
+	public static String SIGNATURE_HEADER = "signature";
+	public static int HEADER_LENGTH = 64;
 
-    private int bodySize = 0;
-    
-    private int headerContentSize = 0;
-    
-    private ByteBuf headerContent ;
-    
-    private ByteBuf body;
+	private int bodySize = 0;
 
-    public int getBodySize() {
-        return bodySize;
-    }
+	private int headerContentSize = 0;
 
-    public void setBodySize(int bodySize) {
-        this.bodySize = bodySize;
-    }
+	private ByteBuf headerContent;
 
-    public int getHeaderContentSize() {
-        return headerContentSize;
-    }
+	private ByteBuf body;
 
-    public void setHeaderContentSize(int headerContentSize) {
-        this.headerContentSize = headerContentSize;
-    }
+	public int getBodySize() {
+		return bodySize;
+	}
 
-    public ByteBuf getHeaderContent() {
-        return headerContent;
-    }
+	public void setBodySize(int bodySize) {
+		this.bodySize = bodySize;
+	}
 
-    public void setHeaderContent(ByteBuf headerContent) {
-        this.headerContent = headerContent;
-    }
+	public int getHeaderContentSize() {
+		return headerContentSize;
+	}
 
-    public ByteBuf getBody() {
-        return body;
-    }
+	public void setHeaderContentSize(int headerContentSize) {
+		this.headerContentSize = headerContentSize;
+	}
 
-    public void setBody(ByteBuf body) {
-        this.body = body;
-    }
-      
+	public ByteBuf getHeaderContent() {
+		return headerContent;
+	}
+
+	public void setHeaderContent(ByteBuf headerContent) {
+		this.headerContent = headerContent;
+	}
+
+	public ByteBuf getBody() {
+		return body;
+	}
+
+	public void setBody(ByteBuf body) {
+		this.body = body;
+	}
+
 }

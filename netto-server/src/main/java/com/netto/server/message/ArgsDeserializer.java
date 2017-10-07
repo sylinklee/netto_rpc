@@ -22,6 +22,7 @@ import com.fasterxml.jackson.databind.deser.UnresolvedForwardReference;
 import com.fasterxml.jackson.databind.deser.impl.ReadableObjectId;
 import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.introspect.Annotated;
+import com.netto.core.util.Constants;
 
 public class ArgsDeserializer extends StdDeserializer<Object[]> {
 	private Map<String, ServiceMethodDesc> serviceMethodParameterTypesCache = new ConcurrentHashMap<String, ServiceMethodDesc>();
@@ -58,10 +59,10 @@ public class ArgsDeserializer extends StdDeserializer<Object[]> {
 
 		Map<String, String> headers = (Map<String, String>) ((NettoDeserializationContext) ctxt).getNettoHeaders();
 		ctxt = ((NettoDeserializationContext) ctxt).getContext();
-		String methodKey = headers.get("service") + "/" + headers.get("method") + "/";
+		String methodKey = headers.get(Constants.SERVICE_HEADER) + "/" + headers.get(Constants.METHOD_HEADER) + "/";
 
-		if (headers.containsKey("argsLen")) {
-			methodKey = methodKey + headers.get("argsLen");
+		if (headers.containsKey(Constants.ARGSLEN_HEADER)) {
+			methodKey = methodKey + headers.get(Constants.ARGSLEN_HEADER);
 		}
 		Type[] types = null;
 		if (this.serviceMethodParameterTypesCache.containsKey(methodKey)) {

@@ -150,13 +150,16 @@ public class NettoClient {
 		refer.setServiceName("helloService");
 		refer.setRouter(routerFactory.getObject());
 		refer.setInterfaceClazz(HelloService.class);
-//		 refer.setTimeout(2000 * 1000);
+		// refer.setTimeout(2000 * 1000);
 		refer.setProtocol("tcp");
 
 		System.out.println("local_tcp begin-----------");
 		HelloService helloProxy = (HelloService) refer.getObject();
-//		String res = helloProxy.sayHello("netto");
-//		System.out.println(res);
+
+		List<User> users1 = helloProxy.queryUsers();
+		System.out.println("无参数的返回值为" + users1.size());
+		// String res = helloProxy.sayHello("netto");
+		// System.out.println(res);
 		Map<String, List<User>> users = new HashMap<String, List<User>>();
 		users.put("abc", new ArrayList<User>());
 		User u = new User();
