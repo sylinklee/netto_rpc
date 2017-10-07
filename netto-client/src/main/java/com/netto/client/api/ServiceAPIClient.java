@@ -8,6 +8,8 @@ import java.io.StringWriter;
 import java.net.Socket;
 import java.util.Arrays;
 
+import org.apache.log4j.Logger;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.client.bean.ReferenceBean;
 import com.netto.client.provider.ServiceProvider;
@@ -24,7 +26,7 @@ import com.netto.service.desc.ServiceDescApi;
  *
  */
 public class ServiceAPIClient {
-	// private static Logger logger = Logger.getLogger(ServiceAPIClient.class);
+	private static Logger logger = Logger.getLogger(ServiceAPIClient.class);
 	private ServiceDescApi api;
 	private Socket socket;
 	private int timeout;
@@ -52,7 +54,12 @@ public class ServiceAPIClient {
 	public int getServerTimeout(String serviceName) {
 		if (api == null)
 			throw new RuntimeException("api is null,not suppport!");
-		return api.queryServiceTimeout(serviceName);
+		try {
+			return api.queryServiceTimeout(serviceName);
+		} catch (Throwable t) {
+			logger.error("getServerTimeout", t);
+			return Constants.DEFAULT_TIMEOUT;
+		}
 	}
 
 	public int pingService(String data) {
