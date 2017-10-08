@@ -1,5 +1,7 @@
 package com.netto.server.bean;
 
+import com.netto.core.util.Constants;
+
 /**
  * 主要定义服务的规则，如限流，过滤器等
  * 
@@ -9,7 +11,7 @@ package com.netto.server.bean;
 public class ServiceBean {
 	private String refName;
 
-	private int timeout;
+	private int timeout = Constants.DEFAULT_TIMEOUT;
 
 	public String getRefName() {
 		return refName;

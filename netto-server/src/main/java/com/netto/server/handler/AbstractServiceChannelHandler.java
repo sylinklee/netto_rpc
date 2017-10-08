@@ -41,7 +41,6 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 	private Map<String, NettoServiceBean> serviceBeans;
 	private List<InvokeMethodFilter> filters;
 
-	private long reponseWriteTimeout = 10;// 3 seconds;
 	private ArgsDeserializer argDeser;
 	private ObjectMapper objectMapper;
 
@@ -100,7 +99,7 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 
 	}
 
-	public void sendResponse(ChannelHandlerContext ctx, ServiceResponse<?> resObj)
+	public void sendResponse(ChannelHandlerContext ctx, ServiceResponse<?> resObj, int timeout)
 			throws JsonGenerationException, JsonMappingException, IOException {
 		StringWriter writer = new StringWriter();
 		this.objectMapper.writeValue(writer, resObj);
@@ -109,7 +108,7 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 		ChannelFuture future = ctx.writeAndFlush(writer.toString());
 
 		try {
-			boolean success = future.await(this.reponseWriteTimeout, TimeUnit.SECONDS);
+			boolean success = future.await(timeout, TimeUnit.MILLISECONDS);
 
 			if (future.cause() != null) {
 				throw new NettoIOException("error response error ", future.cause());
@@ -175,7 +174,8 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 				Object[] args = this.argDeser.deserialize(message);
 				reqObj.setArgs(args);
 				if (serviceBeans.containsKey(reqObj.getServiceName())) {
-					ServiceProxy proxy = new ServiceProxy(reqObj, serviceBeans.get(reqObj.getServiceName()), filters);
+					NettoServiceBean nettoBean = serviceBeans.get(reqObj.getServiceName());
+					ServiceProxy proxy = new ServiceProxy(reqObj, nettoBean, filters);
 
 					try {
 						Object ret = proxy.callService();
@@ -188,15 +188,15 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 						logger.error(t.getMessage(), t);
 						resObj.setErrorMessage(t.getMessage());
 					}
-					this.sendResponse(ctx, resObj);
+					this.sendResponse(ctx, resObj, nettoBean.getServiceBean().getTimeout());
 
 				} else {
 					resObj.setErrorMessage("service " + reqObj.getServiceName() + " is not exsist!");
-					this.sendResponse(ctx, resObj);
+					this.sendResponse(ctx, resObj, Constants.DEFAULT_TIMEOUT);
 				}
 			} else {
 				resObj.setErrorMessage("service  is not verified!");
-				this.sendResponse(ctx, resObj);
+				this.sendResponse(ctx, resObj, Constants.DEFAULT_TIMEOUT);
 			}
 
 		} catch (RemoteAccessException re) {
@@ -206,13 +206,9 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 		} catch (Throwable t) {
 			logger.error("error when process request " + message, t);
 			resObj.setErrorMessage("error when process request " + message);
-			this.sendResponse(ctx, resObj);
+			this.sendResponse(ctx, resObj, Constants.DEFAULT_TIMEOUT);
 		}
 
-	}
-
-	public void setReponseWriteTimeout(long reponseWriteTimeout) {
-		this.reponseWriteTimeout = reponseWriteTimeout;
 	}
 
 	private Throwable getTargetException(Throwable t) {
