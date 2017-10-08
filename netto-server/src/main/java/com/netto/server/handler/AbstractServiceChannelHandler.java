@@ -64,7 +64,7 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 	public AbstractServiceChannelHandler(Map<String, NettoServiceBean> serviceBeans, List<InvokeMethodFilter> filters) {
 		this.serviceBeans = serviceBeans;
 		ServiceBean bean = new ServiceBean();
-		bean.setRef("$serviceDesc");
+		bean.setRefName("$serviceDesc");
 		NettoServiceBean serivceBean = new NettoServiceBean(bean, new ServiceDescApiImpl(this.serviceBeans));
 		this.serviceBeans.put("$serviceDesc", serivceBean);
 

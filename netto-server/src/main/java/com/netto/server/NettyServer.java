@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
@@ -33,9 +34,10 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.string.StringEncoder;
 
-public class NettyServer implements InitializingBean, ApplicationContextAware {
+public class NettyServer implements InitializingBean, DisposableBean, ApplicationContextAware {
 	private static Logger logger = Logger.getLogger(NettyServer.class);
 	private int port = 12345;
+	private String serviceApp;
 
 	private List<InvokeMethodFilter> filters;
 	private int numOfIOWorkerThreads = 16;
@@ -48,13 +50,21 @@ public class NettyServer implements InitializingBean, ApplicationContextAware {
 
 	private int backlog = 1024 * 1024;
 	private int maxWaitingQueueSize = 1024 * 1024;
+	private ChannelFuture channel;
+	private EventLoopGroup bossGroup;
+	private EventLoopGroup workerGroup;
 
 	public NettyServer() {
 	}
-	
-	public NettyServer(int port) {
+
+	public NettyServer(String serviceApp, int port) {
+		this.serviceApp = serviceApp;
 		this.port = port;
 
+	}
+
+	public void setServiceApp(String serviceApp) {
+		this.serviceApp = serviceApp;
 	}
 
 	public void setMaxWaitingQueueSize(int maxWaitingQueueSize) {
@@ -68,7 +78,6 @@ public class NettyServer implements InitializingBean, ApplicationContextAware {
 	public void setMaxRequestSize(int maxRequestSize) {
 		this.maxRequestSize = maxRequestSize;
 	}
-
 
 	public void setPort(int port) {
 		this.port = port;
@@ -87,13 +96,22 @@ public class NettyServer implements InitializingBean, ApplicationContextAware {
 	}
 
 	public void afterPropertiesSet() throws Exception {
+		if (this.serviceApp == null) {
+			throw new Exception("exception:serviceApp is null!");
+		}
 		if (this.serviceBeans == null) {
 			this.serviceBeans = new HashMap<String, NettoServiceBean>();
 			Map<String, ServiceBean> temps = this.applicationContext.getBeansOfType(ServiceBean.class);
 			for (String key : temps.keySet()) {
 				ServiceBean bean = temps.get(key);
+				if (bean.getServiceName() == null && bean.getRefName() == null) {
+					throw new Exception("exception:bean.getServiceName() && bean.getRefName() is all null!");
+				}
+				if (bean.getTimeout() <= 0) {
+					throw new Exception("exception:bean.getTimeout() <=0!");
+				}
 				Object serviceBean = null;
-				String refName = bean.getRef();
+				String refName = bean.getRefName();
 
 				if (!refName.contains(".")) {
 					String refImplName = null;
@@ -131,7 +149,7 @@ public class NettyServer implements InitializingBean, ApplicationContextAware {
 
 				String serviceName = bean.getServiceName();
 				if (serviceName == null) {
-					serviceName = bean.getRef();
+					serviceName = bean.getRefName();
 				}
 				this.serviceBeans.put(serviceName, factoryBean);
 			}
@@ -144,46 +162,66 @@ public class NettyServer implements InitializingBean, ApplicationContextAware {
 
 		ExecutorService boss = Executors.newCachedThreadPool(new NamedThreadFactory("NettyServerBoss", true));
 		ExecutorService worker = Executors.newCachedThreadPool(new NamedThreadFactory("NettyServerWorker", true));
-
-		EventLoopGroup bossGroup = new NioEventLoopGroup(1, boss); // (1)
-		EventLoopGroup workerGroup = new NioEventLoopGroup(numOfIOWorkerThreads, worker);
+		bossGroup = new NioEventLoopGroup(1, boss); // (1)
+		workerGroup = new NioEventLoopGroup(numOfIOWorkerThreads, worker);
 
 		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(serviceBeans, filters,
 				this.maxWaitingQueueSize, this.numOfHandlerWorker);
 
-		try {
-			ServerBootstrap b = new ServerBootstrap(); // (2)
-			b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class) // (3)
-					.option(ChannelOption.SO_BACKLOG, backlog).childHandler(new ChannelInitializer<SocketChannel>() { // (4)
-						@Override
-						public void initChannel(SocketChannel ch) throws Exception {
+		ServerBootstrap b = new ServerBootstrap(); // (2)
+		b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class) // (3)
+				.option(ChannelOption.SO_BACKLOG, backlog).childHandler(new ChannelInitializer<SocketChannel>() { // (4)
+					@Override
+					public void initChannel(SocketChannel ch) throws Exception {
 
-							ChannelPipeline p = ch.pipeline();
-							// p.addLast("framer", new DelimiterBasedFrameDecoder(maxRequestSize,
-							// Constants.delimiterAsByteBufArray()));
-							// p.addLast("framer",new JsonObjectDecoder(maxRequestSize));
-							// p.addLast("decoder", new ByteArrayDecoder());
-							p.addLast("framer", new NettoFrameDecoder(maxRequestSize));
-							p.addLast("decoder", new NettoMessageDecoder());
-							p.addLast("encoder", new StringEncoder());
-							p.addLast("handler", new NettyNettoMessageHandler(handler));
+						ChannelPipeline p = ch.pipeline();
+						// p.addLast("framer", new
+						// DelimiterBasedFrameDecoder(maxRequestSize,
+						// Constants.delimiterAsByteBufArray()));
+						// p.addLast("framer",new
+						// JsonObjectDecoder(maxRequestSize));
+						// p.addLast("decoder", new ByteArrayDecoder());
+						p.addLast("framer", new NettoFrameDecoder(maxRequestSize));
+						p.addLast("decoder", new NettoMessageDecoder());
+						p.addLast("encoder", new StringEncoder());
+						p.addLast("handler", new NettyNettoMessageHandler(handler));
 
-							// p.addLast("handler",new
-							// NettyServerJsonHandler(serviceBeans, filters));
-						}
-					});
+						// p.addLast("handler",new
+						// NettyServerJsonHandler(serviceBeans, filters));
+					}
+				});
 
-			// Bind and start to accept incoming connections.
-			ChannelFuture f = b.bind(this.port).sync(); // (7)
+		// Bind and start to accept incoming connections.
+		channel = b.bind(this.port);// .sync(); // (7)
+		logger.info("server bind port:" + this.port);
 
-			logger.info("server bind port:" + this.port);
+		// Wait until the server socket is closed.
+		// f.channel().closeFuture().sync();
+	}
 
-			// Wait until the server socket is closed.
-			f.channel().closeFuture().sync();
-		} finally {
-			// Shut down all event loops to terminate all threads.
-			bossGroup.shutdownGracefully();
-			workerGroup.shutdownGracefully();
+	@Override
+	public void destroy() throws Exception {
+		// Shut down all event loops to terminate all threads.
+		if (channel != null) {
+			try {
+				channel.channel().close();
+			} catch (Throwable t) {
+
+			}
+		}
+		if (bossGroup != null) {
+			try {
+				bossGroup.shutdownGracefully();
+			} catch (Throwable t) {
+
+			}
+		}
+		if (workerGroup != null) {
+			try {
+				workerGroup.shutdownGracefully();
+			} catch (Throwable t) {
+
+			}
 		}
 	}
 

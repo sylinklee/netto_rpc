@@ -34,7 +34,7 @@ public class NettoClient {
 
 		routerFactory = new ServiceRouterFactory();
 		routerFactory.setRegistry("http://192.168.2.38:8330/api/");
-		routerFactory.setServiceApp("myservice");
+		routerFactory.setServiceApp("netto-demo");
 		routerFactory.setServiceGroup("*");
 		routerFactory.afterPropertiesSet();
 		ReferenceBean refer = new ReferenceBean();
@@ -69,14 +69,9 @@ public class NettoClient {
 	}
 
 	public static void nginx_tcp() throws Exception {
-		// ServiceAddressGroup serverGroup = new ServiceAddressGroup();
-		// serverGroup.setRegistry("http://127.0.0.1:8330/api/");
-		// serverGroup.setServiceApp("myservice");
-		// serverGroup.setServiceGroup("*");
-
 		routerFactory = new ServiceRouterFactory();
 		routerFactory.setRegistry("http://127.0.0.1:8330/api/");
-		routerFactory.setServiceApp("myservice");
+		routerFactory.setServiceApp("netto-demo");
 		routerFactory.setNeedSignature(true);
 		routerFactory.afterPropertiesSet();
 
@@ -114,7 +109,7 @@ public class NettoClient {
 
 		routerFactory = new ServiceRouterFactory();
 
-		routerFactory.setServiceApp("myservice");
+		routerFactory.setServiceApp("netto-demo");
 		routerFactory.setServers("127.0.0.1:9229");
 
 		routerFactory.afterPropertiesSet();

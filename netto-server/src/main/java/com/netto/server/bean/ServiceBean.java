@@ -7,38 +7,34 @@ package com.netto.server.bean;
  *
  */
 public class ServiceBean {
-	private String ref;
-	
-    private int timeout;
+	private String refName;
 
-	public String getRef() {
-		return ref;
+	private int timeout;
+
+	public String getRefName() {
+		return refName;
 	}
 
-	public void setRef(String ref) {
-		this.ref = ref;
+	public void setRefName(String refName) {
+		this.refName = refName;
 	}
-	
-	private String serviceName ;
 
-    public String getServiceName() {
-        return serviceName;
-    }
+	private String serviceName;
 
-    public void setServiceName(String name) {
-        this.serviceName = name;
-    }
-	
+	public String getServiceName() {
+		return serviceName;
+	}
 
+	public void setServiceName(String name) {
+		this.serviceName = name;
+	}
 
-    public int getTimeout() {
-        return timeout;
-    }
+	public int getTimeout() {
+		return timeout;
+	}
 
-    public void setTimeout(int timeout) {
-        this.timeout = timeout;
-    }
-    
-    
-	
+	public void setTimeout(int timeout) {
+		this.timeout = timeout;
+	}
+
 }

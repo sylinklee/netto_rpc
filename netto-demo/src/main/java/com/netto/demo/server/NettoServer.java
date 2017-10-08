@@ -13,7 +13,7 @@ public class NettoServer {
 	public static void main(String[] args) throws Exception {
 		Map<String, NettoServiceBean> serviceBeans = new HashMap<String, NettoServiceBean>();
 		ServiceBean serviceBean = new ServiceBean();
-		serviceBean.setRef("helloService");
+		serviceBean.setRefName("helloService");
 		serviceBean.setTimeout(2000);
 		serviceBean.setServiceName("helloService");
 		Object refBean = new HelloServiceImpl();
@@ -21,7 +21,7 @@ public class NettoServer {
 		NettoServiceBean nettoBean = new NettoServiceBean(serviceBean, refBean);
 		serviceBeans.put("helloService", nettoBean);
 
-		NettyServer server = new NettyServer(9229);
+		NettyServer server = new NettyServer("netto-demo", 9229);
 		server.setMaxWaitingQueueSize(2);
 		server.setNumOfHandlerWorker(1);
 		server.setMaxRequestSize(1024 * 1024);

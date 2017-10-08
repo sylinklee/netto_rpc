@@ -9,11 +9,13 @@
 		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 		
 	<bean class="com.netto.server.bean.ServiceBean">
-		 <property name="ref" value="helloServiceImpl"/>
+		 <property name="refName" value="helloServiceImpl"/>
 		 <property name="serviceName" value="helloService"/>
+		 <property name="timeout" value="2000"/>
 	</bean>
 	
 	<bean class="com.netto.server.NettyServer">
+		<property name="serviceApp" value="${netto.serviceApp}"/>	
 		<property name="port" value="${netto.port}"/>	
 		<property name="backlog" value="${netto.backlog}"/>		
 	</bean>
