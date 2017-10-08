@@ -165,7 +165,7 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 		bossGroup = new NioEventLoopGroup(1, boss); // (1)
 		workerGroup = new NioEventLoopGroup(numOfIOWorkerThreads, worker);
 
-		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(serviceBeans, filters,
+		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(this.serviceApp, serviceBeans, filters,
 				this.maxWaitingQueueSize, this.numOfHandlerWorker);
 
 		ServerBootstrap b = new ServerBootstrap(); // (2)
@@ -206,21 +206,21 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 			try {
 				channel.channel().close();
 			} catch (Throwable t) {
-				logger.error("channel.close",t);
+				logger.error("channel.close", t);
 			}
 		}
 		if (bossGroup != null) {
 			try {
 				bossGroup.shutdownGracefully();
 			} catch (Throwable t) {
-				logger.error("bossGroup.shutdownGracefully",t);
+				logger.error("bossGroup.shutdownGracefully", t);
 			}
 		}
 		if (workerGroup != null) {
 			try {
 				workerGroup.shutdownGracefully();
 			} catch (Throwable t) {
-				logger.error("workerGroup.shutdownGracefully",t);
+				logger.error("workerGroup.shutdownGracefully", t);
 			}
 		}
 	}

@@ -37,13 +37,27 @@ import io.netty.channel.ChannelHandlerContext;
 public abstract class AbstractServiceChannelHandler implements NettoServiceChannelHandler {
 
 	protected static Logger logger = Logger.getLogger(AbstractServiceChannelHandler.class);
-
+	private String serviceApp;
 	private Map<String, NettoServiceBean> serviceBeans;
 	private List<InvokeMethodFilter> filters;
 
 	private long reponseWriteTimeout = 10;// 3 seconds;
 	private ArgsDeserializer argDeser;
 	private ObjectMapper objectMapper;
+
+	public AbstractServiceChannelHandler(String serviceApp, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters) {
+		this.serviceApp = serviceApp;
+		this.serviceBeans = serviceBeans;
+		ServiceBean bean = new ServiceBean();
+		bean.setRefName("$serviceDesc");
+		NettoServiceBean serivceBean = new NettoServiceBean(bean,
+				new ServiceDescApiImpl(this.serviceApp, this.serviceBeans));
+		this.serviceBeans.put("$serviceDesc", serivceBean);
+
+		this.filters = filters;
+		this.initJson();
+	}
 
 	@Override
 	public void caught(ChannelHandlerContext ctx, Throwable cause) {
@@ -59,17 +73,6 @@ public abstract class AbstractServiceChannelHandler implements NettoServiceChann
 			logger.error("caught error failed ", t);
 		}
 
-	}
-
-	public AbstractServiceChannelHandler(Map<String, NettoServiceBean> serviceBeans, List<InvokeMethodFilter> filters) {
-		this.serviceBeans = serviceBeans;
-		ServiceBean bean = new ServiceBean();
-		bean.setRefName("$serviceDesc");
-		NettoServiceBean serivceBean = new NettoServiceBean(bean, new ServiceDescApiImpl(this.serviceBeans));
-		this.serviceBeans.put("$serviceDesc", serivceBean);
-
-		this.filters = filters;
-		this.initJson();
 	}
 
 	private void initJson() {

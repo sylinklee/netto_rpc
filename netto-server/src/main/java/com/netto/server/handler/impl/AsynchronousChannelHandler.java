@@ -18,53 +18,44 @@ import com.netto.server.message.NettoMessage;
 
 import io.netty.channel.ChannelHandlerContext;
 
+public class AsynchronousChannelHandler extends AbstractServiceChannelHandler implements NettoServiceChannelHandler {
+	private static Logger logger = Logger.getLogger(AsynchronousChannelHandler.class);
 
-public class AsynchronousChannelHandler extends AbstractServiceChannelHandler implements NettoServiceChannelHandler{
-    private static Logger logger = Logger.getLogger(AsynchronousChannelHandler.class);
-    
+	private Executor executor = null;
 
-    
-    private Executor executor = null;
-    
-    public AsynchronousChannelHandler(Map<String, NettoServiceBean> serviceBeans,  List<InvokeMethodFilter> filters) {
-        this(serviceBeans,filters,Integer.MAX_VALUE,256);
-    }    
-    
-    public AsynchronousChannelHandler(Map<String, NettoServiceBean> serviceBeans,  List<InvokeMethodFilter> filters,int maxQueueSize,int numHandlerWorker) {
-        super(serviceBeans,filters);
+	public AsynchronousChannelHandler(String serviceApp, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters) {
+		this(serviceApp, serviceBeans, filters, Integer.MAX_VALUE, 256);
+	}
 
-        
-        executor = new ThreadPoolExecutor(numHandlerWorker,
-                numHandlerWorker,
-                60000L,
-                TimeUnit.SECONDS,
-                new LinkedBlockingQueue<Runnable>(maxQueueSize),
-                new NamedThreadFactory("NettoHandlerThread", true));
-        
-    } 
-    
+	public AsynchronousChannelHandler(String serviceApp, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters, int maxQueueSize, int numHandlerWorker) {
+		super(serviceApp, serviceBeans, filters);
 
-    
-    @Override
-    public void received(ChannelHandlerContext ctx, NettoMessage message) throws Exception {
-        try{
-            this.executor.execute(new Runnable(){
-    
-                @Override
-                public void run() {
-                    try {
-                        AsynchronousChannelHandler.this.handle(ctx, message);
-                    } catch (Throwable t) {                    
-                        logger.error("error when call handler ",t);                        
-                    }
-                    
-                }
-                
-            });
-        }
-        catch(Throwable t){
-            logger.error("error when submit task ",t);            
-        }
-    }
+		executor = new ThreadPoolExecutor(numHandlerWorker, numHandlerWorker, 60000L, TimeUnit.SECONDS,
+				new LinkedBlockingQueue<Runnable>(maxQueueSize), new NamedThreadFactory("NettoHandlerThread", true));
+
+	}
+
+	@Override
+	public void received(ChannelHandlerContext ctx, NettoMessage message) throws Exception {
+		try {
+			this.executor.execute(new Runnable() {
+
+				@Override
+				public void run() {
+					try {
+						AsynchronousChannelHandler.this.handle(ctx, message);
+					} catch (Throwable t) {
+						logger.error("error when call handler ", t);
+					}
+
+				}
+
+			});
+		} catch (Throwable t) {
+			logger.error("error when submit task ", t);
+		}
+	}
 
 }

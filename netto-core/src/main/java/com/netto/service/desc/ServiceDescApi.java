@@ -4,6 +4,9 @@ import java.util.List;
 import java.util.Set;
 
 public interface ServiceDescApi {
+
+	public String getServiceApp();
+
 	public List<MethodDesc> findServiceMethods(String token, String serviceName);
 
 	public Set<String> findServices(String token);

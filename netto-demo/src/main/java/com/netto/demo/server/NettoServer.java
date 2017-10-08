@@ -2,6 +2,7 @@ package com.netto.demo.server;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
 
 import com.netto.demo.impl.HelloServiceImpl;
 import com.netto.server.NettyServer;
@@ -28,7 +29,8 @@ public class NettoServer {
 		server.setNumOfIOWorkerThreads(1);
 		server.setServiceBeans(serviceBeans);
 		server.afterPropertiesSet();
-
+		CountDownLatch latch = new CountDownLatch(1);
+		latch.await();
 	}
 
 }

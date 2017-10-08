@@ -11,17 +11,16 @@ import com.netto.server.message.NettoMessage;
 
 import io.netty.channel.ChannelHandlerContext;
 
-public class SynchronousChannelHandler extends AbstractServiceChannelHandler implements NettoServiceChannelHandler{
+public class SynchronousChannelHandler extends AbstractServiceChannelHandler implements NettoServiceChannelHandler {
 
+	public SynchronousChannelHandler(String serviceApp, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters) {
+		super(serviceApp, serviceBeans, filters);
+	}
 
-    
-    public SynchronousChannelHandler(Map<String, NettoServiceBean> serviceBeans,  List<InvokeMethodFilter> filters) {
-        super(serviceBeans,filters);
-    }    
-    
-    @Override
-    public void received(ChannelHandlerContext ctx, NettoMessage message) throws Exception {
-        this.handle(ctx, message);        
-    }
+	@Override
+	public void received(ChannelHandlerContext ctx, NettoMessage message) throws Exception {
+		this.handle(ctx, message);
+	}
 
 }
