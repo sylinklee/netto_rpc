@@ -206,21 +206,21 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 			try {
 				channel.channel().close();
 			} catch (Throwable t) {
-
+				logger.error("channel.close",t);
 			}
 		}
 		if (bossGroup != null) {
 			try {
 				bossGroup.shutdownGracefully();
 			} catch (Throwable t) {
-
+				logger.error("bossGroup.shutdownGracefully",t);
 			}
 		}
 		if (workerGroup != null) {
 			try {
 				workerGroup.shutdownGracefully();
 			} catch (Throwable t) {
-
+				logger.error("workerGroup.shutdownGracefully",t);
 			}
 		}
 	}
