@@ -4,7 +4,6 @@
 2、jackson自定义序列化<br/>
 3、基于nginx的路由发现<br/>
 4、实现nginx+lua的服务代理<br/>
-5、集成schedule分布式调度<br/>
 
 进度：<br/>
 2017-10-07 1.0.0开发版，测试中 <br/>
