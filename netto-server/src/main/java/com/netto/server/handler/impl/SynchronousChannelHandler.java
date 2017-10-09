@@ -13,9 +13,9 @@ import io.netty.channel.ChannelHandlerContext;
 
 public class SynchronousChannelHandler extends AbstractServiceChannelHandler implements NettoServiceChannelHandler {
 
-	public SynchronousChannelHandler(String serviceApp, Map<String, NettoServiceBean> serviceBeans,
+	public SynchronousChannelHandler(String serviceApp, String serviceGroup, Map<String, NettoServiceBean> serviceBeans,
 			List<InvokeMethodFilter> filters) {
-		super(serviceApp, serviceBeans, filters);
+		super(serviceApp, serviceGroup, serviceBeans, filters);
 	}
 
 	@Override

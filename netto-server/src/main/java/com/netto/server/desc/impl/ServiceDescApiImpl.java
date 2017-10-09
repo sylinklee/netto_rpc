@@ -24,16 +24,23 @@ import com.netto.service.desc.ServiceDescApi;
 
 public class ServiceDescApiImpl implements ServiceDescApi {
 	private String serviceApp;
+	private String serviceGroup;
 	private Map<String, NettoServiceBean> serviceBeans;
 
-	public ServiceDescApiImpl(String serviceApp, Map<String, NettoServiceBean> serviceBeans) {
+	public ServiceDescApiImpl(String serviceApp, String serviceGroup, Map<String, NettoServiceBean> serviceBeans) {
 		this.serviceApp = serviceApp;
+		this.serviceGroup = serviceGroup;
 		this.serviceBeans = serviceBeans;
 	}
-	public String getServiceApp()
-	{
+
+	public String getServiceApp() {
 		return this.serviceApp;
 	}
+
+	public String getServiceGroup() {
+		return this.serviceGroup;
+	}
+
 	public List<MethodDesc> findServiceMethods(String token, String serviceName) {
 		if (!this.checkToken(token)) {
 			throw new RuntimeException("token is error！ ");

@@ -12,6 +12,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.netto.client.bean.ReferenceBean;
 import com.netto.client.router.ServiceRouterFactory;
+import com.netto.core.context.ServiceAddressGroup;
 import com.netto.core.util.DesUtil;
 import com.netto.demo.Book;
 import com.netto.demo.HelloService;
@@ -29,14 +30,17 @@ public class NettoClient {
 		latch.await();
 	}
 
-
 	public static void nginx_http_tcp() throws Exception {
 
 		routerFactory = new ServiceRouterFactory();
-		routerFactory.setRegistry("http://192.168.2.38:8330/api/");
-		routerFactory.setServiceApp("netto-demo");
-		routerFactory.setServiceGroup("*");
+
+		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		routerFactory.setServerGroup(serverGroup);
+		serverGroup.setRegistry("http://192.168.2.38:8330/api/");
+		serverGroup.setServiceApp("netto-demo");
+		serverGroup.setServiceGroup("base");
 		routerFactory.afterPropertiesSet();
+
 		ReferenceBean refer = new ReferenceBean();
 		refer.setServiceName("helloService");
 		refer.setRouter(routerFactory.getObject());
@@ -70,8 +74,11 @@ public class NettoClient {
 
 	public static void nginx_tcp() throws Exception {
 		routerFactory = new ServiceRouterFactory();
-		routerFactory.setRegistry("http://127.0.0.1:8330/api/");
-		routerFactory.setServiceApp("netto-demo");
+		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		routerFactory.setServerGroup(serverGroup);
+		serverGroup.setRegistry("http://127.0.0.1:8330/api/");
+		serverGroup.setServiceApp("netto-demo");
+		serverGroup.setServiceGroup("base");
 		routerFactory.setNeedSignature(true);
 		routerFactory.afterPropertiesSet();
 
@@ -79,7 +86,7 @@ public class NettoClient {
 		refer.setServiceName("helloService");
 		refer.setRouter(routerFactory.getObject());
 		refer.setInterfaceClazz(HelloService.class);
-		refer.setTimeout(2000 * 1000);
+		refer.setTimeout(20 * 1000);
 		refer.setProtocol("tcp");
 		System.out.println("nginx_tcp begin-----------");
 		HelloService helloProxy = (HelloService) refer.getObject();
@@ -108,10 +115,11 @@ public class NettoClient {
 	public static void local_tcp() throws Exception {
 
 		routerFactory = new ServiceRouterFactory();
-
-		routerFactory.setServiceApp("netto-demo");
-		routerFactory.setServers("127.0.0.1:9229");
-
+		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		serverGroup.setServiceApp("netto-demo");
+		serverGroup.setServiceGroup("base");
+		serverGroup.setServers("127.0.0.1:9229");
+		routerFactory.setServerGroup(serverGroup);
 		routerFactory.afterPropertiesSet();
 
 		ReferenceBean refer = new ReferenceBean();

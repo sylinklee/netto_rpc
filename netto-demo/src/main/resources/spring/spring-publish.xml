@@ -16,6 +16,7 @@
 	
 	<bean class="com.netto.server.NettyServer">
 		<property name="serviceApp" value="${netto.serviceApp}"/>	
+		<property name="serviceGroup" value="${netto.serviceGroup}"/>
 		<property name="port" value="${netto.port}"/>	
 		<property name="backlog" value="${netto.backlog}"/>		
 	</bean>

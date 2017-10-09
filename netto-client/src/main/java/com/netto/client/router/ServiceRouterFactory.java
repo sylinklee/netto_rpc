@@ -1,10 +1,8 @@
 package com.netto.client.router;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.springframework.beans.factory.FactoryBean;
@@ -14,19 +12,14 @@ import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.LocalServiceProvider;
 import com.netto.client.provider.NginxServiceProvider;
 import com.netto.client.provider.ServiceProvider;
-import com.netto.core.context.ServiceAddress;
 import com.netto.core.context.ServiceAddressGroup;
 import com.netto.core.filter.InvokeMethodFilter;
 
 public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, InitializingBean {
-	private String serviceApp;
-	private String serviceGroup = "*";
-	private String registry;
 	private ServiceAddressGroup serverGroup;
 	private Map<String, String> routers;
 	private GenericObjectPoolConfig poolConfig;
 	private List<InvokeMethodFilter> filters;
-	private List<String> servers;
 
 	private boolean needSignature = false;
 
@@ -80,7 +73,8 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 		}
 		providers.add(provider);
 
-		return new ServiceRouter(this.serviceApp, providers, this.getRouters());
+		return new ServiceRouter(serverGroup.getServiceApp(), serverGroup.getServiceGroup(), providers,
+				this.getRouters());
 	}
 
 	public Class<?> getObjectType() {
@@ -91,51 +85,16 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 		return true;
 	}
 
-	public void setServiceApp(String serviceApp) {
-		this.serviceApp = serviceApp;
-	}
-
-	public void setServiceGroup(String serviceGroup) {
-		this.serviceGroup = serviceGroup;
-	}
-
-	public void setRegistry(String registry) {
-		this.registry = registry;
-	}
-
 	@Override
 	public void afterPropertiesSet() throws Exception {
 		if (this.serverGroup == null) {
-			ServiceAddressGroup serverGroup = new ServiceAddressGroup();
-			serverGroup.setRegistry(this.registry);
-			serverGroup.setServiceApp(this.serviceApp);
-			serverGroup.setServiceGroup(this.serviceGroup);
-			this.serverGroup = serverGroup;
-
-			if (this.servers != null) {
-				List<ServiceAddress> addresses = servers.stream().map(server -> {
-					String[] s = server.split(":");
-					String host = s[0];
-					int port = 1234;
-					if (s.length > 1) {
-						port = Integer.parseInt(s[1]);
-					}
-
-					ServiceAddress address = new ServiceAddress();
-					address.setIp(host);
-					address.setPort(port);
-					return address;
-
-				}).collect(Collectors.toList());
-				serverGroup.setServers(addresses);
-			}
+			throw new Exception("exception:serverGroup is null!");
 		}
 
 	}
 
-	public void setServers(String servers) {
-		this.servers = Arrays.asList(servers.split(";"));
-
+	public void setServerGroup(ServiceAddressGroup serverGroup) {
+		this.serverGroup = serverGroup;
 	}
 
 }

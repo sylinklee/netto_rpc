@@ -52,13 +52,14 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 	}
 
 	private TcpConnectPool getTcpPool() {
-		ServiceProvider provider = this.getRouter().findProvider(this.getServiceGroup());
+		ServiceProvider provider = this.getRouter().findProvider();
 		return (TcpConnectPool) provider.getPool("tcp");
 	}
 
 	private ServiceRouter getRouter() {
 		List<ServiceProvider> providers = this.getProviders();
-		ServiceRouter router = new ServiceRouter(this.getServiceApp(), providers, this.getRouterMap());
+		ServiceRouter router = new ServiceRouter(this.getServiceApp(), this.getServiceGroup(), providers,
+				this.getRouterMap());
 		return router;
 	}
 

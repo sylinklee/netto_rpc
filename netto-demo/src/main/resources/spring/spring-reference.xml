@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+    	http://www.springframework.org/schema/beans/spring-beans-4.0.xsd
+    	http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-4.0.xsd
+		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<bean id="serverGroup" class="com.netto.core.context.ServiceAddressGroup">
+		<property name="serviceApp" value="${netto.serviceApp}" />
+		<property name="serviceGroup" value="${netto.serviceGroup}" />
+		<property name="servers" value="${netto.servers}" />
+	</bean>
+	<bean id="routerFactory" class="com.netto.client.router.ServiceRouterFactory">
+		<property name="serverGroup" ref="serverGroup" />
+		<property name="needSignature" value="true" />
+	</bean>
+
+	<bean id="helloSerivce" class="com.netto.client.bean.ReferenceBean">
+		<property name="serviceName" value="helloService" />
+		<property name="router" ref="routerFactory" />
+		<property name="interfaceClazz" value="com.netto.demo.HelloService" />
+		<property name="protocol" value="tcp" />
+		<property name="timeout" value="20000" />
+	</bean>
+
+</beans>

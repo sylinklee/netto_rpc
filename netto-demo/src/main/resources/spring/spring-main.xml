@@ -17,6 +17,7 @@
 	</bean>
 
 	<import resource="classpath:spring/spring-publish.xml" />
+	<import resource="classpath:spring/spring-reference.xml" />
  	<context:component-scan
 		base-package="com.netto.demo">
 		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller" />

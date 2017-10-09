@@ -7,6 +7,8 @@ public interface ServiceDescApi {
 
 	public String getServiceApp();
 
+	public String getServiceGroup();
+
 	public List<MethodDesc> findServiceMethods(String token, String serviceName);
 
 	public Set<String> findServices(String token);

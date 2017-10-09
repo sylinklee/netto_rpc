@@ -38,7 +38,7 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 	private static Logger logger = Logger.getLogger(NettyServer.class);
 	private int port = 12345;
 	private String serviceApp;
-
+	private String serviceGroup = "*";
 	private List<InvokeMethodFilter> filters;
 	private int numOfIOWorkerThreads = 16;
 
@@ -57,14 +57,19 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 	public NettyServer() {
 	}
 
-	public NettyServer(String serviceApp, int port) {
+	public NettyServer(String serviceApp, String serviceGroup, int port) {
 		this.serviceApp = serviceApp;
+		this.serviceGroup = serviceGroup;
 		this.port = port;
 
 	}
 
 	public void setServiceApp(String serviceApp) {
 		this.serviceApp = serviceApp;
+	}
+
+	public void setServiceGroup(String serviceGroup) {
+		this.serviceGroup = serviceGroup;
 	}
 
 	public void setMaxWaitingQueueSize(int maxWaitingQueueSize) {
@@ -98,6 +103,9 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 	public void afterPropertiesSet() throws Exception {
 		if (this.serviceApp == null) {
 			throw new Exception("exception:serviceApp is null!");
+		}
+		if (this.serviceGroup == null) {
+			throw new Exception("exception:serviceGroup is null!");
 		}
 		if (this.serviceBeans == null) {
 			this.serviceBeans = new HashMap<String, NettoServiceBean>();
@@ -165,8 +173,8 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 		bossGroup = new NioEventLoopGroup(1, boss); // (1)
 		workerGroup = new NioEventLoopGroup(numOfIOWorkerThreads, worker);
 
-		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(this.serviceApp, serviceBeans, filters,
-				this.maxWaitingQueueSize, this.numOfHandlerWorker);
+		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(this.serviceApp, this.serviceGroup,
+				serviceBeans, filters, this.maxWaitingQueueSize, this.numOfHandlerWorker);
 
 		ServerBootstrap b = new ServerBootstrap(); // (2)
 		b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class) // (3)
