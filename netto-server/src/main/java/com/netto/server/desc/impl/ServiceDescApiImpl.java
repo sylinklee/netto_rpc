@@ -20,6 +20,8 @@ import com.netto.server.bean.NettoServiceBean;
 import com.netto.service.desc.ClassDesc;
 import com.netto.service.desc.FieldDesc;
 import com.netto.service.desc.MethodDesc;
+import com.netto.service.desc.ServerDesc;
+import com.netto.service.desc.ServiceDesc;
 import com.netto.service.desc.ServiceDescApi;
 
 public class ServiceDescApiImpl implements ServiceDescApi {
@@ -33,12 +35,12 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		this.serviceBeans = serviceBeans;
 	}
 
-	public String getServiceApp() {
-		return this.serviceApp;
-	}
-
-	public String getServiceGroup() {
-		return this.serviceGroup;
+	@Override
+	public ServerDesc getServerDesc() {
+		ServerDesc desc = new ServerDesc();
+		desc.setServiceApp(this.serviceApp);
+		desc.setServiceGroup(this.serviceGroup);
+		return desc;
 	}
 
 	public List<MethodDesc> findServiceMethods(String token, String serviceName) {
@@ -75,11 +77,23 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		return methodDescs;
 	}
 
-	public Set<String> findServices(String token) {
+	public Set<ServiceDesc> findServices(String token) {
 		if (!this.checkToken(token)) {
 			throw new RuntimeException("token is error！ ");
 		}
-		return this.serviceBeans.keySet();
+		Set<ServiceDesc> services = new HashSet<ServiceDesc>();
+		for (String key : this.serviceBeans.keySet()) {
+			ServiceDesc desc = new ServiceDesc();
+			desc.setServiceName(key);
+			desc.setServiceApp(this.serviceApp);
+			desc.setTimeout(this.serviceBeans.get(key).getServiceBean().getTimeout());
+			Class<?>[] interfaces = this.serviceBeans.get(key).getObjectType().getInterfaces();
+			if (interfaces != null && interfaces.length > 0) {
+				desc.setInterfaceClazz(interfaces[0].getName());
+			}
+			services.add(desc);
+		}
+		return services;
 	}
 
 	private void dependons(MethodDesc methodDesc, Type type) {

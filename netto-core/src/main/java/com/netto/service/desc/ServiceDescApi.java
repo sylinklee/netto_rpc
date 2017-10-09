@@ -5,13 +5,11 @@ import java.util.Set;
 
 public interface ServiceDescApi {
 
-	public String getServiceApp();
-
-	public String getServiceGroup();
+	public ServerDesc getServerDesc();
 
 	public List<MethodDesc> findServiceMethods(String token, String serviceName);
 
-	public Set<String> findServices(String token);
+	public Set<ServiceDesc> findServices(String token);
 
 	public int queryServiceTimeout(String serviceName);
 

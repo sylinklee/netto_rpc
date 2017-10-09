@@ -18,6 +18,8 @@ import com.netto.demo.Book;
 import com.netto.demo.HelloService;
 import com.netto.demo.User;
 import com.netto.service.desc.MethodDesc;
+import com.netto.service.desc.ServerDesc;
+import com.netto.service.desc.ServiceDesc;
 import com.netto.service.desc.ServiceDescApi;
 
 public class NettoClient {
@@ -164,9 +166,13 @@ public class NettoClient {
 		refer.setProtocol("tcp");
 
 		ServiceDescApi descObj = (ServiceDescApi) refer.getObject();
-		Set<String> services = descObj.findServices(getDescToken());
-		for (String service : services) {
-			System.out.println(service);
+
+		ServerDesc serverDesc = descObj.getServerDesc();
+		System.out.println(serverDesc);
+		
+		Set<ServiceDesc> descList = descObj.findServices(getDescToken());
+		for (ServiceDesc desc : descList) {
+			System.out.println(desc);
 		}
 		List<MethodDesc> methodDecss = descObj.findServiceMethods(getDescToken(), "helloService");
 		for (MethodDesc desc : methodDecss) {
@@ -174,7 +180,7 @@ public class NettoClient {
 		}
 
 		System.out.println("findServicesByInterface " + HelloService.class.getName());
-		services = descObj.findServicesByInterface(getDescToken(), HelloService.class.getName());
+		Set<String> services = descObj.findServicesByInterface(getDescToken(), HelloService.class.getName());
 		for (String service : services) {
 			System.out.println(service);
 		}
