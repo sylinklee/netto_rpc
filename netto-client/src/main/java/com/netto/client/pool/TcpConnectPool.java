@@ -31,8 +31,8 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 			config.setMaxWaitMillis(1000);
 			// 指明连接是否被空闲连接回收器(如果有)进行检验.如果检测失败,则连接将被从池中去除.
 			config.setTestWhileIdle(true);
-			// 每10秒运行一次空闲连接回收器
-			config.setTimeBetweenEvictionRunsMillis(10000);
+			// 每30秒运行一次空闲连接回收器
+			config.setTimeBetweenEvictionRunsMillis(30000);
 			// 池中的连接空闲10分钟后被回收
 			config.setMinEvictableIdleTimeMillis(600000);
 			// 在每次空闲连接回收器线程(如果有)运行时检查的连接数量
