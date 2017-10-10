@@ -4,18 +4,14 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.netto.core.util.DesUtil;
 import com.netto.server.bean.NettoServiceBean;
 import com.netto.service.desc.ClassDesc;
 import com.netto.service.desc.FieldDesc;
@@ -43,10 +39,7 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		return desc;
 	}
 
-	public List<MethodDesc> findServiceMethods(String token, String serviceName) {
-		if (!this.checkToken(token)) {
-			throw new RuntimeException("token is error！ ");
-		}
+	public List<MethodDesc> findServiceMethods(String serviceName) {
 		NettoServiceBean serviceObj = this.serviceBeans.get(serviceName);
 		if (serviceObj == null)
 			return null;
@@ -77,10 +70,7 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		return methodDescs;
 	}
 
-	public Set<ServiceDesc> findServices(String token) {
-		if (!this.checkToken(token)) {
-			throw new RuntimeException("token is error！ ");
-		}
+	public Set<ServiceDesc> findServices() {
 		Set<ServiceDesc> services = new HashSet<ServiceDesc>();
 		for (String key : this.serviceBeans.keySet()) {
 			ServiceDesc desc = new ServiceDesc();
@@ -130,12 +120,12 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		}
 	}
 
-	private boolean checkToken(String token) {
-		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-		String content = format.format(new Date());
-		String temp = DesUtil.encrypt(content.getBytes(), content);
-		return temp.equals(token);
-	}
+//	private boolean checkToken(String token) {
+//		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+//		String content = format.format(new Date());
+//		String temp = DesUtil.encrypt(content.getBytes(), content);
+//		return temp.equals(token);
+//	}
 
 	@Override
 	public int queryServiceTimeout(String serviceName) {
@@ -151,10 +141,7 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 	}
 
 	@Override
-	public Set<String> findServicesByInterface(String token, String interfaceClazzStr) {
-		if (!this.checkToken(token)) {
-			throw new RuntimeException("token is error！ ");
-		}
+	public Set<String> findServicesByInterface(String interfaceClazzStr) {
 		Set<String> services = new HashSet<String>();
 		Class<?> interfaceClazz;
 		try {

@@ -169,18 +169,18 @@ public class NettoClient {
 
 		ServerDesc serverDesc = descObj.getServerDesc();
 		System.out.println(serverDesc);
-		
-		Set<ServiceDesc> descList = descObj.findServices(getDescToken());
+
+		Set<ServiceDesc> descList = descObj.findServices();
 		for (ServiceDesc desc : descList) {
 			System.out.println(desc);
 		}
-		List<MethodDesc> methodDecss = descObj.findServiceMethods(getDescToken(), "helloService");
+		List<MethodDesc> methodDecss = descObj.findServiceMethods("helloService");
 		for (MethodDesc desc : methodDecss) {
 			System.out.println(desc);
 		}
 
 		System.out.println("findServicesByInterface " + HelloService.class.getName());
-		Set<String> services = descObj.findServicesByInterface(getDescToken(), HelloService.class.getName());
+		Set<String> services = descObj.findServicesByInterface(HelloService.class.getName());
 		for (String service : services) {
 			System.out.println(service);
 		}
@@ -188,7 +188,7 @@ public class NettoClient {
 		System.out.println("service desc api end------------");
 	}
 
-	private static String getDescToken() {
+	public static String getDescToken() {
 		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 		String content = format.format(new Date());
 		return DesUtil.encrypt(content.getBytes(), content);
