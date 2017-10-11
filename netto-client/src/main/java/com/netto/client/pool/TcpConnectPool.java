@@ -1,5 +1,6 @@
 package com.netto.client.pool;
 
+import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,18 +11,29 @@ import org.apache.commons.pool2.PooledObjectFactory;
 import org.apache.commons.pool2.impl.DefaultPooledObject;
 import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.client.api.ServiceAPIClient;
+import com.netto.client.util.JsonMapperUtil;
+import com.netto.core.context.ServiceAddressGroup;
+import com.netto.core.util.Constants;
 import com.netto.core.context.ServiceAddress;
 
 public class TcpConnectPool implements ConnectPool<Socket> {
 	private static Logger logger = Logger.getLogger(TcpConnectPool.class);
-	private List<ServiceAddress> servers = new ArrayList<ServiceAddress>();
+	private ServiceAddressGroup serverGroup;
 	private GenericObjectPool<Socket> pool;
 
-	public TcpConnectPool(List<ServiceAddress> servers, GenericObjectPoolConfig config) {
-		this.servers = servers;
+	public TcpConnectPool(ServiceAddressGroup serverGroup, GenericObjectPoolConfig config) {
+		this.serverGroup = serverGroup;
 		if (config == null) {
 			config = new GenericObjectPoolConfig();
 			config.setMaxTotal(200);
@@ -40,10 +52,6 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 
 		}
 		pool = new GenericObjectPool<Socket>(new ClientSocketPoolFactory(), config);
-	}
-
-	public List<ServiceAddress> getServers() {
-		return servers;
 	}
 
 	public Socket getResource() {
@@ -74,6 +82,7 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 	}
 
 	private class ClientSocketPoolFactory implements PooledObjectFactory<Socket> {
+
 		public ClientSocketPoolFactory() {
 
 		}
@@ -81,7 +90,7 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 		public PooledObject<Socket> makeObject() throws Exception {
 			// 简单策略随机取服务器，没有考虑权重
 			List<ServiceAddress> temps = new ArrayList<ServiceAddress>();
-			temps.addAll(servers);
+			temps.addAll(serverGroup.getServers());
 
 			for (int i = temps.size() - 1; i >= 0; i--) {
 				int index = new Random(System.currentTimeMillis()).nextInt(temps.size());
@@ -99,6 +108,8 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 							+ e.getMessage());
 				}
 			}
+			// 没有可用服务器时，请求一下registry更新服务器信息
+			this.updateServerGroup();
 			throw new Exception("No server available!");
 		}
 
@@ -141,6 +152,46 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 				logger.error("ping service[" + socket.getInetAddress().getHostAddress() + ":" + socket.getPort()
 						+ "] failed! " + t.getMessage());
 				return false;
+			}
+		}
+
+		private synchronized void updateServerGroup() {
+			if (serverGroup.getRegistry() == null)
+				return;
+			if (!serverGroup.getRegistry().startsWith("http"))
+				return;
+			RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(Constants.DEFAULT_TIMEOUT)
+					.setConnectionRequestTimeout(Constants.DEFAULT_TIMEOUT).setSocketTimeout(Constants.DEFAULT_TIMEOUT)
+					.build();
+			CloseableHttpClient httpClient = HttpClients.createDefault();
+			try {
+				StringBuilder sb = new StringBuilder(50);
+				sb.append(serverGroup.getRegistry()).append(serverGroup.getRegistry().endsWith("/") ? "" : "/")
+						.append(serverGroup.getServiceApp()).append("/servers");
+				HttpGet get = new HttpGet(sb.toString());
+				get.setConfig(requestConfig);
+				// 创建参数队列
+				HttpResponse response = httpClient.execute(get);
+				HttpEntity entity = response.getEntity();
+				String body = EntityUtils.toString(entity, "UTF-8");
+				ObjectMapper mapper = JsonMapperUtil.getJsonMapper();
+				List<ServiceAddressGroup> servers = mapper.readValue(body,
+						mapper.getTypeFactory().constructParametricType(List.class,
+								mapper.getTypeFactory().constructType(ServiceAddressGroup.class)));
+
+				if (servers != null && servers.size() > 0) {
+					serverGroup.getServers().clear();
+					serverGroup.getServers().addAll(servers.get(0).getServers());
+				}
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new RuntimeException(e);
+			} finally {
+				try {
+					httpClient.close();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
 			}
 		}
 	}

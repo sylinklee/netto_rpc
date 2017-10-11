@@ -66,7 +66,7 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 					serverGroup.getServiceGroup(), needSignature).setPoolConfig(this.poolConfig);
 
 		} else {
-			TcpConnectPool pool = new TcpConnectPool(serverGroup.getServers(), this.poolConfig);
+			TcpConnectPool pool = new TcpConnectPool(serverGroup, this.poolConfig);
 			provider = new LocalServiceProvider(serverGroup.getRegistry(), serverGroup.getServiceApp(),
 					serverGroup.getServiceGroup(), pool, needSignature);
 

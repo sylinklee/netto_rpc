@@ -9,6 +9,7 @@ import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
@@ -22,6 +23,7 @@ import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.router.ServiceRouter;
 import com.netto.client.util.JsonMapperUtil;
 import com.netto.core.context.ServiceAddressGroup;
+import com.netto.core.util.Constants;
 
 public class NginxServiceProvider extends AbstractServiceProvider {
 	private static Logger logger = Logger.getLogger(NginxServiceProvider.class);
@@ -67,7 +69,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 		List<ServiceProvider> providers = new ArrayList<ServiceProvider>();
 		List<ServiceAddressGroup> serverGroups = this.getServerGroups();
 		for (ServiceAddressGroup serverGroup : serverGroups) {
-			TcpConnectPool pool = new TcpConnectPool(serverGroup.getServers(), this.config);
+			TcpConnectPool pool = new TcpConnectPool(serverGroup, this.config);
 			ServiceProvider provider = new LocalServiceProvider(this.getRegistry(), serverGroup.getServiceApp(),
 					serverGroup.getServiceGroup(), pool, this.needSignature());
 			providers.add(provider);
@@ -77,12 +79,16 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 
 	@SuppressWarnings("unchecked")
 	private Map<String, String> getRouterMap() {
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(Constants.DEFAULT_TIMEOUT)
+				.setConnectionRequestTimeout(Constants.DEFAULT_TIMEOUT).setSocketTimeout(Constants.DEFAULT_TIMEOUT)
+				.build();
 		HttpClient httpClient = this.httpPool.getResource();
 		try {
 			StringBuilder sb = new StringBuilder(50);
 			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
 					.append(this.getServiceApp()).append("/routers");
 			HttpGet get = new HttpGet(sb.toString());
+			get.setConfig(requestConfig);
 			// 创建参数队列
 			HttpResponse response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();
