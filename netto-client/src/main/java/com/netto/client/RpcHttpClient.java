@@ -47,7 +47,7 @@ public class RpcHttpClient extends AbstactRpcClient {
 			// 创建httppost
 			HttpPost post = new HttpPost(this.getInvokeUrl(method.getName()));
 			post.setConfig(requestConfig);
-			post.addHeader("$app", this.getProvider().getServiceApp());
+			post.addHeader("$app", this.getProvider().getServerApp());
 			if (RpcContext.getRouterContext() != null) {
 				post.addHeader("$router", RpcContext.getRouterContext());
 			}
@@ -100,7 +100,7 @@ public class RpcHttpClient extends AbstactRpcClient {
 		if (!this.getProvider().getRegistry().endsWith("/")) {
 			sb.append("/");
 		}
-		sb.append(this.getProvider().getServiceApp()).append("/").append(this.getServiceName()).append("/")
+		sb.append(this.getProvider().getServerApp()).append("/").append(this.getServiceName()).append("/")
 				.append(methodName);
 		return sb.toString();
 	}

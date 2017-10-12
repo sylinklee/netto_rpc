@@ -1,17 +1,17 @@
 package com.netto.service.desc;
 
 public class ServiceDesc {
-	private String serviceApp;
+	private String serverApp;
 	private String serviceName;
 	private String interfaceClazz;
 	private int timeout;
 
-	public String getServiceApp() {
-		return serviceApp;
+	public String getServerApp() {
+		return serverApp;
 	}
 
-	public void setServiceApp(String serviceApp) {
-		this.serviceApp = serviceApp;
+	public void setServerApp(String serverApp) {
+		this.serverApp = serverApp;
 	}
 
 	public String getServiceName() {
@@ -41,7 +41,7 @@ public class ServiceDesc {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(100);
-		sb.append("app:").append(serviceApp).append(" name:").append(serviceName).append(" timeout:")
+		sb.append("app:").append(serverApp).append(" name:").append(serviceName).append(" timeout:")
 				.append(this.timeout).append(" interface:").append(this.interfaceClazz);
 		return sb.toString();
 	}

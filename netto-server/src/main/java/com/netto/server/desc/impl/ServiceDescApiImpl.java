@@ -21,21 +21,21 @@ import com.netto.service.desc.ServiceDesc;
 import com.netto.service.desc.ServiceDescApi;
 
 public class ServiceDescApiImpl implements ServiceDescApi {
-	private String serviceApp;
-	private String serviceGroup;
+	private String serverApp;
+	private String serverGroup;
 	private Map<String, NettoServiceBean> serviceBeans;
 
-	public ServiceDescApiImpl(String serviceApp, String serviceGroup, Map<String, NettoServiceBean> serviceBeans) {
-		this.serviceApp = serviceApp;
-		this.serviceGroup = serviceGroup;
+	public ServiceDescApiImpl(String serverApp, String serverGroup, Map<String, NettoServiceBean> serviceBeans) {
+		this.serverApp = serverApp;
+		this.serverGroup = serverGroup;
 		this.serviceBeans = serviceBeans;
 	}
 
 	@Override
 	public ServerDesc getServerDesc() {
 		ServerDesc desc = new ServerDesc();
-		desc.setServiceApp(this.serviceApp);
-		desc.setServiceGroup(this.serviceGroup);
+		desc.setServerApp(this.serverApp);
+		desc.setServerGroup(this.serverGroup);
 		return desc;
 	}
 
@@ -75,7 +75,7 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		for (String key : this.serviceBeans.keySet()) {
 			ServiceDesc desc = new ServiceDesc();
 			desc.setServiceName(key);
-			desc.setServiceApp(this.serviceApp);
+			desc.setServerApp(this.serverApp);
 			desc.setTimeout(this.serviceBeans.get(key).getServiceBean().getTimeout());
 			Class<?>[] interfaces = this.serviceBeans.get(key).getObjectType().getInterfaces();
 			if (interfaces != null && interfaces.length > 0) {

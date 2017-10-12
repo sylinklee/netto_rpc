@@ -21,16 +21,16 @@ import org.apache.log4j.Logger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.client.api.ServiceAPIClient;
 import com.netto.client.util.JsonMapperUtil;
-import com.netto.core.context.ServiceAddressGroup;
+import com.netto.core.context.ServerAddressGroup;
 import com.netto.core.util.Constants;
-import com.netto.core.context.ServiceAddress;
+import com.netto.core.context.ServerAddress;
 
 public class TcpConnectPool implements ConnectPool<Socket> {
 	private static Logger logger = Logger.getLogger(TcpConnectPool.class);
-	private ServiceAddressGroup serverGroup;
+	private ServerAddressGroup serverGroup;
 	private GenericObjectPool<Socket> pool;
 
-	public TcpConnectPool(ServiceAddressGroup serverGroup, GenericObjectPoolConfig config) {
+	public TcpConnectPool(ServerAddressGroup serverGroup, GenericObjectPoolConfig config) {
 		this.serverGroup = serverGroup;
 		if (config == null) {
 			config = new GenericObjectPoolConfig();
@@ -88,12 +88,12 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 
 		public PooledObject<Socket> makeObject() throws Exception {
 			// 简单策略随机取服务器，没有考虑权重
-			List<ServiceAddress> temps = new ArrayList<ServiceAddress>();
+			List<ServerAddress> temps = new ArrayList<ServerAddress>();
 			temps.addAll(serverGroup.getServers());
 
 			for (int i = temps.size() - 1; i >= 0; i--) {
 				int index = new Random(System.currentTimeMillis()).nextInt(temps.size());
-				ServiceAddress server = temps.get(index);
+				ServerAddress server = temps.get(index);
 				try {
 					PooledObject<Socket> po = new DefaultPooledObject<Socket>(
 							new Socket(server.getIp(), server.getPort()));
@@ -166,7 +166,7 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 			try {
 				StringBuilder sb = new StringBuilder(50);
 				sb.append(serverGroup.getRegistry()).append(serverGroup.getRegistry().endsWith("/") ? "" : "/")
-						.append(serverGroup.getServiceApp()).append("/servers");
+						.append(serverGroup.getServerApp()).append("/servers");
 				HttpGet get = new HttpGet(sb.toString());
 				get.setConfig(requestConfig);
 				// 创建参数队列
@@ -174,9 +174,9 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 				HttpEntity entity = response.getEntity();
 				String body = EntityUtils.toString(entity, "UTF-8");
 				ObjectMapper mapper = JsonMapperUtil.getJsonMapper();
-				List<ServiceAddressGroup> servers = mapper.readValue(body,
+				List<ServerAddressGroup> servers = mapper.readValue(body,
 						mapper.getTypeFactory().constructParametricType(List.class,
-								mapper.getTypeFactory().constructType(ServiceAddressGroup.class)));
+								mapper.getTypeFactory().constructType(ServerAddressGroup.class)));
 
 				if (servers != null && servers.size() > 0) {
 					serverGroup.getServers().clear();

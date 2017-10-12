@@ -1,29 +1,29 @@
 package com.netto.service.desc;
 
 public class ServerDesc {
-	private String serviceApp;
-	private String serviceGroup;
+	private String serverApp;
+	private String serverGroup;
 
-	public String getServiceApp() {
-		return serviceApp;
+	public String getServerApp() {
+		return serverApp;
 	}
 
-	public void setServiceApp(String serviceApp) {
-		this.serviceApp = serviceApp;
+	public void setServerApp(String serverApp) {
+		this.serverApp = serverApp;
 	}
 
-	public String getServiceGroup() {
-		return serviceGroup;
+	public String getServerGroup() {
+		return serverGroup;
 	}
 
-	public void setServiceGroup(String serviceGroup) {
-		this.serviceGroup = serviceGroup;
+	public void setServerGroup(String serverGroup) {
+		this.serverGroup = serverGroup;
 	}
 
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(100);
-		sb.append("app:").append(serviceApp).append(" group:").append(serviceGroup);
+		sb.append("app:").append(serverApp).append(" group:").append(serverGroup);
 		return sb.toString();
 	}
 

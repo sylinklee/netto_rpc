@@ -4,10 +4,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class ServiceAddressGroup {
-	private List<ServiceAddress> servers;
-	private String serviceApp;
-	private String serviceGroup;
+public class ServerAddressGroup {
+	private List<ServerAddress> servers;
+	private String serverApp;
+	private String serverGroup;
 	private String registry;
 
 	public String getRegistry() {
@@ -18,29 +18,29 @@ public class ServiceAddressGroup {
 		this.registry = registry;
 	}
 
-	public String getServiceApp() {
-		return serviceApp;
+	public String getServerApp() {
+		return serverApp;
 	}
 
-	public void setServiceApp(String serviceApp) {
-		this.serviceApp = serviceApp;
+	public void setServerApp(String serverApp) {
+		this.serverApp = serverApp;
 	}
 
-	public String getServiceGroup() {
-		return serviceGroup;
+	public String getServerGroup() {
+		return serverGroup;
 	}
 
-	public void setServiceGroup(String serviceGroup) {
-		this.serviceGroup = serviceGroup;
+	public void setServerGroup(String serverGroup) {
+		this.serverGroup = serverGroup;
 	}
 
-	public List<ServiceAddress> getServers() {
+	public List<ServerAddress> getServers() {
 		return servers;
 	}
 
 	public void setServers(String servers) {
 		List<String> serverList = Arrays.asList(servers.split(";"));
-		List<ServiceAddress> addresses = serverList.stream().map(server -> {
+		List<ServerAddress> addresses = serverList.stream().map(server -> {
 			String[] s = server.split(":");
 			String host = s[0];
 			int port = 1234;
@@ -48,7 +48,7 @@ public class ServiceAddressGroup {
 				port = Integer.parseInt(s[1]);
 			}
 
-			ServiceAddress address = new ServiceAddress();
+			ServerAddress address = new ServerAddress();
 			address.setIp(host);
 			address.setPort(port);
 			return address;

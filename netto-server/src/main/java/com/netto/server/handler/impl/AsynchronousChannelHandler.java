@@ -23,15 +23,15 @@ public class AsynchronousChannelHandler extends AbstractServiceChannelHandler im
 
 	private Executor executor = null;
 
-	public AsynchronousChannelHandler(String serviceApp, String serviceGroup,
-			Map<String, NettoServiceBean> serviceBeans, List<InvokeMethodFilter> filters) {
-		this(serviceApp, serviceGroup, serviceBeans, filters, Integer.MAX_VALUE, 256);
+	public AsynchronousChannelHandler(String serverApp, String serverGroup, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters) {
+		this(serverApp, serverGroup, serviceBeans, filters, Integer.MAX_VALUE, 256);
 	}
 
-	public AsynchronousChannelHandler(String serviceApp, String serviceGroup,
+	public AsynchronousChannelHandler(String serverApp, String serverGroup,
 			Map<String, NettoServiceBean> serviceBeans, List<InvokeMethodFilter> filters, int maxQueueSize,
 			int numHandlerWorker) {
-		super(serviceApp, serviceGroup, serviceBeans, filters);
+		super(serverApp, serverGroup, serviceBeans, filters);
 
 		executor = new ThreadPoolExecutor(numHandlerWorker, numHandlerWorker, 60000L, TimeUnit.SECONDS,
 				new LinkedBlockingQueue<Runnable>(maxQueueSize), new NamedThreadFactory("NettoHandlerThread", true));

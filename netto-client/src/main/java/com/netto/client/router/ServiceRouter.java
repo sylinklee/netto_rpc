@@ -11,23 +11,23 @@ import com.netto.core.context.RpcContext;
 public class ServiceRouter {
 	private Map<String, String> routers;
 	private Map<String, ServiceProvider> providerMap = new HashMap<String, ServiceProvider>();
-	private String serviceApp;
-	private String serviceGroup;
+	private String serverApp;
+	private String serverGroup;
 
-	public ServiceRouter(String serviceApp, String serviceGroup, List<ServiceProvider> providers,
+	public ServiceRouter(String serverApp, String serverGroup, List<ServiceProvider> providers,
 			Map<String, String> routers) {
-		this.serviceApp = serviceApp;
-		this.serviceGroup = serviceGroup;
+		this.serverApp = serverApp;
+		this.serverGroup = serverGroup;
 		this.routers = routers;
 		for (ServiceProvider obj : providers) {
 			AbstractServiceProvider provider = (AbstractServiceProvider) obj;
-			providerMap.put(this.serviceApp + "." + provider.getServiceGroup(), provider);
+			providerMap.put(this.serverApp + "." + provider.getServerGroup(), provider);
 		}
 
 	}
 
 	public ServiceProvider findProvider() {
-		return this.findProvider(this.serviceGroup);
+		return this.findProvider(this.serverGroup);
 	}
 
 	private ServiceProvider findProvider(String serviceGroup) {
@@ -41,6 +41,6 @@ public class ServiceRouter {
 		if (serviceGroup == null) {
 			serviceGroup = "*";
 		}
-		return this.providerMap.get(serviceApp + "." + serviceGroup);
+		return this.providerMap.get(serverApp + "." + serviceGroup);
 	}
 }

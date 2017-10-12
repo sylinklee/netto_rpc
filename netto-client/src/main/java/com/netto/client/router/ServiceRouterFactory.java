@@ -12,11 +12,11 @@ import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.LocalServiceProvider;
 import com.netto.client.provider.NginxServiceProvider;
 import com.netto.client.provider.ServiceProvider;
-import com.netto.core.context.ServiceAddressGroup;
+import com.netto.core.context.ServerAddressGroup;
 import com.netto.core.filter.InvokeMethodFilter;
 
 public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, InitializingBean {
-	private ServiceAddressGroup serverGroup;
+	private ServerAddressGroup serverGroup;
 	private Map<String, String> routers;
 	private GenericObjectPoolConfig poolConfig;
 	private List<InvokeMethodFilter> filters;
@@ -62,18 +62,18 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 		ServiceProvider provider = null;
 		if (serverGroup.getRegistry() != null && serverGroup.getRegistry().startsWith("http")) {
 
-			provider = new NginxServiceProvider(serverGroup.getRegistry(), serverGroup.getServiceApp(),
-					serverGroup.getServiceGroup(), needSignature).setPoolConfig(this.poolConfig);
+			provider = new NginxServiceProvider(serverGroup.getRegistry(), serverGroup.getServerApp(),
+					serverGroup.getServerGroup(), needSignature).setPoolConfig(this.poolConfig);
 
 		} else {
 			TcpConnectPool pool = new TcpConnectPool(serverGroup, this.poolConfig);
-			provider = new LocalServiceProvider(serverGroup.getRegistry(), serverGroup.getServiceApp(),
-					serverGroup.getServiceGroup(), pool, needSignature);
+			provider = new LocalServiceProvider(serverGroup.getRegistry(), serverGroup.getServerApp(),
+					serverGroup.getServerGroup(), pool, needSignature);
 
 		}
 		providers.add(provider);
 
-		return new ServiceRouter(serverGroup.getServiceApp(), serverGroup.getServiceGroup(), providers,
+		return new ServiceRouter(serverGroup.getServerApp(), serverGroup.getServerGroup(), providers,
 				this.getRouters());
 	}
 
@@ -93,7 +93,7 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 
 	}
 
-	public void setServerGroup(ServiceAddressGroup serverGroup) {
+	public void setServerGroup(ServerAddressGroup serverGroup) {
 		this.serverGroup = serverGroup;
 	}
 

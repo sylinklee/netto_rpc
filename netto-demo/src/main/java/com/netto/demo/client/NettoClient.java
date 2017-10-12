@@ -12,7 +12,7 @@ import java.util.concurrent.CountDownLatch;
 
 import com.netto.client.bean.ReferenceBean;
 import com.netto.client.router.ServiceRouterFactory;
-import com.netto.core.context.ServiceAddressGroup;
+import com.netto.core.context.ServerAddressGroup;
 import com.netto.core.util.DesUtil;
 import com.netto.demo.Book;
 import com.netto.demo.HelloService;
@@ -36,11 +36,11 @@ public class NettoClient {
 
 		routerFactory = new ServiceRouterFactory();
 
-		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		ServerAddressGroup serverGroup = new ServerAddressGroup();
 		routerFactory.setServerGroup(serverGroup);
 		serverGroup.setRegistry("http://192.168.2.38:8330/api/");
-		serverGroup.setServiceApp("netto-demo");
-		serverGroup.setServiceGroup("base");
+		serverGroup.setServerApp("netto-demo");
+		serverGroup.setServerGroup("base");
 		routerFactory.afterPropertiesSet();
 
 		ReferenceBean refer = new ReferenceBean();
@@ -76,11 +76,11 @@ public class NettoClient {
 
 	public static void nginx_tcp() throws Exception {
 		routerFactory = new ServiceRouterFactory();
-		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
+		ServerAddressGroup serverGroup = new ServerAddressGroup();
 		routerFactory.setServerGroup(serverGroup);
 		serverGroup.setRegistry("http://127.0.0.1:8330/api/");
-		serverGroup.setServiceApp("netto-demo");
-		serverGroup.setServiceGroup("base");
+		serverGroup.setServerApp("netto-demo");
+		serverGroup.setServerGroup("base");
 		routerFactory.setNeedSignature(true);
 		routerFactory.afterPropertiesSet();
 
@@ -117,9 +117,9 @@ public class NettoClient {
 	public static void local_tcp() throws Exception {
 
 		routerFactory = new ServiceRouterFactory();
-		ServiceAddressGroup serverGroup = new ServiceAddressGroup();
-		serverGroup.setServiceApp("netto-demo");
-		serverGroup.setServiceGroup("base");
+		ServerAddressGroup serverGroup = new ServerAddressGroup();
+		serverGroup.setServerApp("netto-demo");
+		serverGroup.setServerGroup("base");
 		serverGroup.setServers("127.0.0.1:9229");
 		routerFactory.setServerGroup(serverGroup);
 		routerFactory.afterPropertiesSet();

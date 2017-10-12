@@ -9,8 +9,8 @@
 		http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
 	<bean id="serverGroup" class="com.netto.core.context.ServiceAddressGroup">
-		<property name="serviceApp" value="${netto.serviceApp}" />
-		<property name="serviceGroup" value="${netto.serviceGroup}" />
+		<property name="serverApp" value="${netto.serverApp}" />
+		<property name="serverGroup" value="${netto.serverGroup}" />
 		<property name="servers" value="${netto.servers}" />
 	</bean>
 	<bean id="routerFactory" class="com.netto.client.router.ServiceRouterFactory">

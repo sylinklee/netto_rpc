@@ -19,7 +19,7 @@ import com.netto.client.pool.HttpConnectPool;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.router.ServiceRouter;
 import com.netto.client.util.JsonMapperUtil;
-import com.netto.core.context.ServiceAddressGroup;
+import com.netto.core.context.ServerAddressGroup;
 import com.netto.core.util.Constants;
 
 public class NginxServiceProvider extends AbstractServiceProvider {
@@ -27,8 +27,8 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 	private HttpConnectPool httpPool;
 	private GenericObjectPoolConfig config;
 
-	public NginxServiceProvider(String registry, String serviceApp, String serviceGroup, boolean needSignature) {
-		super(registry, serviceApp, serviceGroup, needSignature);
+	public NginxServiceProvider(String registry, String serverApp, String serverGroup, boolean needSignature) {
+		super(registry, serverApp, serverGroup, needSignature);
 		this.httpPool = new HttpConnectPool();
 
 	}
@@ -57,18 +57,18 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 
 	private ServiceRouter getRouter() {
 		List<ServiceProvider> providers = this.getProviders();
-		ServiceRouter router = new ServiceRouter(this.getServiceApp(), this.getServiceGroup(), providers,
+		ServiceRouter router = new ServiceRouter(this.getServerApp(), this.getServerGroup(), providers,
 				this.getRouterMap());
 		return router;
 	}
 
 	private List<ServiceProvider> getProviders() {
 		List<ServiceProvider> providers = new ArrayList<ServiceProvider>();
-		List<ServiceAddressGroup> serverGroups = this.getServerGroups();
-		for (ServiceAddressGroup serverGroup : serverGroups) {
+		List<ServerAddressGroup> serverGroups = this.getServerGroups();
+		for (ServerAddressGroup serverGroup : serverGroups) {
 			TcpConnectPool pool = new TcpConnectPool(serverGroup, this.config);
-			ServiceProvider provider = new LocalServiceProvider(this.getRegistry(), serverGroup.getServiceApp(),
-					serverGroup.getServiceGroup(), pool, this.needSignature());
+			ServiceProvider provider = new LocalServiceProvider(this.getRegistry(), serverGroup.getServerApp(),
+					serverGroup.getServerGroup(), pool, this.needSignature());
 			providers.add(provider);
 		}
 		return providers;
@@ -83,7 +83,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 		try {
 			StringBuilder sb = new StringBuilder(50);
 			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
-					.append(this.getServiceApp()).append("/routers");
+					.append(this.getServerApp()).append("/routers");
 			HttpGet get = new HttpGet(sb.toString());
 			get.setConfig(requestConfig);
 			// 创建参数队列
@@ -100,12 +100,12 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 		}
 	}
 
-	private List<ServiceAddressGroup> getServerGroups() {
+	private List<ServerAddressGroup> getServerGroups() {
 		HttpClient httpClient = this.httpPool.getResource();
 		try {
 			StringBuilder sb = new StringBuilder(50);
 			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
-					.append(this.getServiceApp()).append("/servers");
+					.append(this.getServerApp()).append("/servers");
 			HttpGet get = new HttpGet(sb.toString());
 			// 创建参数队列
 			HttpResponse response = httpClient.execute(get);
@@ -113,7 +113,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 			String body = EntityUtils.toString(entity, "UTF-8");
 			ObjectMapper mapper = JsonMapperUtil.getJsonMapper();
 			return mapper.readValue(body, mapper.getTypeFactory().constructParametricType(List.class,
-					mapper.getTypeFactory().constructType(ServiceAddressGroup.class)));
+					mapper.getTypeFactory().constructType(ServerAddressGroup.class)));
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 			throw new RuntimeException(e);
