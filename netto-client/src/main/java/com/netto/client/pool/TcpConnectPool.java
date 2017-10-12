@@ -1,6 +1,5 @@
 package com.netto.client.pool;
 
-import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +12,9 @@ import org.apache.commons.pool2.impl.GenericObjectPool;
 import org.apache.commons.pool2.impl.GenericObjectPoolConfig;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
@@ -82,9 +80,10 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 	}
 
 	private class ClientSocketPoolFactory implements PooledObjectFactory<Socket> {
+		private HttpConnectPool httpPool;
 
 		public ClientSocketPoolFactory() {
-
+			this.httpPool = new HttpConnectPool();
 		}
 
 		public PooledObject<Socket> makeObject() throws Exception {
@@ -163,7 +162,7 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 			RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(Constants.DEFAULT_TIMEOUT)
 					.setConnectionRequestTimeout(Constants.DEFAULT_TIMEOUT).setSocketTimeout(Constants.DEFAULT_TIMEOUT)
 					.build();
-			CloseableHttpClient httpClient = HttpClients.createDefault();
+			HttpClient httpClient = this.httpPool.getResource();
 			try {
 				StringBuilder sb = new StringBuilder(50);
 				sb.append(serverGroup.getRegistry()).append(serverGroup.getRegistry().endsWith("/") ? "" : "/")
@@ -187,11 +186,7 @@ public class TcpConnectPool implements ConnectPool<Socket> {
 				logger.error(e.getMessage(), e);
 				throw new RuntimeException(e);
 			} finally {
-				try {
-					httpClient.close();
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
+				this.httpPool.release(httpClient);
 			}
 		}
 	}

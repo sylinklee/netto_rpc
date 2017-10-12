@@ -1,6 +1,5 @@
 package com.netto.client.provider;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -11,8 +10,6 @@ import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 
@@ -104,7 +101,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 	}
 
 	private List<ServiceAddressGroup> getServerGroups() {
-		CloseableHttpClient httpClient = HttpClients.createDefault();
+		HttpClient httpClient = this.httpPool.getResource();
 		try {
 			StringBuilder sb = new StringBuilder(50);
 			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
@@ -121,11 +118,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 			logger.error(e.getMessage(), e);
 			throw new RuntimeException(e);
 		} finally {
-			try {
-				httpClient.close();
-			} catch (IOException e) {
-				logger.error(e.getMessage(), e);
-			}
+			this.httpPool.release(httpClient);
 		}
 	}
 }
