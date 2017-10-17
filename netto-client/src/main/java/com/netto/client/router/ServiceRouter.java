@@ -30,17 +30,17 @@ public class ServiceRouter {
 		return this.findProvider(this.serverGroup);
 	}
 
-	private ServiceProvider findProvider(String serviceGroup) {
-		if (serviceGroup == null) {
+	private ServiceProvider findProvider(String serverGroup) {
+		if (serverGroup == null) {
 			if (RpcContext.getRouterContext() != null) {
 				if (routers != null) {
-					serviceGroup = this.routers.get(RpcContext.getRouterContext());
+					serverGroup = this.routers.get(RpcContext.getRouterContext());
 				}
 			}
 		}
-		if (serviceGroup == null) {
-			serviceGroup = "*";
+		if (serverGroup == null) {
+			serverGroup = "*";
 		}
-		return this.providerMap.get(serverApp + "." + serviceGroup);
+		return this.providerMap.get(serverApp + "." + serverGroup);
 	}
 }
