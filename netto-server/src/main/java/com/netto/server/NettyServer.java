@@ -1,11 +1,31 @@
 package com.netto.server;
 
+import java.io.IOException;
+import java.security.KeyManagementException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.net.ssl.SSLContext;
+
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContextBuilder;
+import org.apache.http.ssl.TrustStrategy;
 import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanCreationException;
@@ -14,7 +34,10 @@ import org.springframework.beans.factory.InitializingBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.core.filter.InvokeMethodFilter;
+import com.netto.core.util.Constants;
+import com.netto.core.util.JsonMapperUtil;
 import com.netto.server.bean.NettoServiceBean;
 import com.netto.server.bean.ServiceBean;
 import com.netto.server.handler.NettoServiceChannelHandler;
@@ -22,6 +45,8 @@ import com.netto.server.handler.impl.AsynchronousChannelHandler;
 import com.netto.server.handler.impl.NettyNettoMessageHandler;
 import com.netto.server.message.NettoFrameDecoder;
 import com.netto.server.message.NettoMessageDecoder;
+import com.netto.service.desc.ServerDesc;
+import com.netto.service.desc.ServiceDesc;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -37,8 +62,9 @@ import io.netty.handler.codec.string.StringEncoder;
 public class NettyServer implements InitializingBean, DisposableBean, ApplicationContextAware {
 	private static Logger logger = Logger.getLogger(NettyServer.class);
 	private int port = 12345;
+	private String registry;
 	private String serverApp;
-	private String serverGroup = "*";
+	private String serverGroup = Constants.DEFAULT_SERVER_GROUP;
 	private List<InvokeMethodFilter> filters;
 	private int numOfIOWorkerThreads = 16;
 
@@ -62,6 +88,10 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 		this.serverGroup = serverGroup;
 		this.port = port;
 
+	}
+
+	public void setRegistry(String registry) {
+		this.registry = registry;
 	}
 
 	public void setServerApp(String serverApp) {
@@ -162,7 +192,7 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 				this.serviceBeans.put(serviceName, factoryBean);
 			}
 		}
-
+		this.publish();
 		this.run();
 	}
 
@@ -172,9 +202,12 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 		ExecutorService worker = Executors.newCachedThreadPool(new NamedThreadFactory("NettyServerWorker", true));
 		bossGroup = new NioEventLoopGroup(1, boss); // (1)
 		workerGroup = new NioEventLoopGroup(numOfIOWorkerThreads, worker);
-
-		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(this.serverApp, this.serverGroup,
-				serviceBeans, filters, this.maxWaitingQueueSize, this.numOfHandlerWorker);
+		ServerDesc serverDesc = new ServerDesc();
+		serverDesc.setRegistry(this.registry);
+		serverDesc.setServerApp(this.serverApp);
+		serverDesc.setServerGroup(this.serverApp);
+		NettoServiceChannelHandler handler = new AsynchronousChannelHandler(serverDesc, serviceBeans, filters,
+				this.maxWaitingQueueSize, this.numOfHandlerWorker);
 
 		ServerBootstrap b = new ServerBootstrap(); // (2)
 		b.group(bossGroup, workerGroup).channel(NioServerSocketChannel.class) // (3)
@@ -256,6 +289,93 @@ public class NettyServer implements InitializingBean, DisposableBean, Applicatio
 
 	public void setNumOfHandlerWorker(int numOfHandlerWorker) {
 		this.numOfHandlerWorker = numOfHandlerWorker;
+	}
+
+	private void publish() {
+		if (this.registry == null)
+			return;
+		List<ServiceDesc> services = new ArrayList<ServiceDesc>();
+		for (String key : this.serviceBeans.keySet()) {
+			ServiceBean serviceBean = this.serviceBeans.get(key).getServiceBean();
+			Class<?>[] interfaces = this.serviceBeans.get(key).getObjectType().getInterfaces();
+			String interfaceClazz = null;
+			if (interfaces != null && interfaces.length > 0) {
+				interfaceClazz = interfaces[0].getName();
+			}
+			if (serviceBean.getGateway()
+					|| (interfaceClazz != null && interfaceClazz.equals("com.netto.schedule.IScheduleTaskProcess"))) {
+				ServiceDesc desc = new ServiceDesc();
+				desc.setServiceName(key);
+				desc.setServerApp(serverApp);
+				desc.setTimeout(serviceBean.getTimeout());
+				desc.setGateway(true);
+				desc.setInterfaceClazz(interfaceClazz);
+				services.add(desc);
+			}
+		}
+		this.postRegistry(services);
+
+	}
+
+	private void postRegistry(List<ServiceDesc> services) {
+		if (services == null || services.size() == 0)
+			return;
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(Constants.DEFAULT_TIMEOUT)
+				.setConnectionRequestTimeout(Constants.DEFAULT_TIMEOUT).setSocketTimeout(Constants.DEFAULT_TIMEOUT)
+				.build();
+		HttpClient httpClient = getHttpClient();
+		try {
+			StringBuilder sb = new StringBuilder(50);
+			sb.append(this.registry).append(this.registry.endsWith("/") ? "" : "/").append("/publish");
+			HttpPost post = new HttpPost(sb.toString());
+			post.setConfig(requestConfig);
+
+			ObjectMapper mapper = JsonMapperUtil.getJsonMapper();
+
+			String requestBody = mapper.writeValueAsString(services);
+			StringEntity se = new StringEntity(requestBody, ContentType.APPLICATION_JSON);
+			post.setEntity(se);
+
+			// 创建参数队列
+			HttpResponse response = httpClient.execute(post);
+			if (response.getStatusLine().getStatusCode() == 200) {
+				logger.info("publish 服务成功！个数：" + services.size());
+			} else {
+				logger.info("publish 服务失败！");
+			}
+
+		} catch (Exception e) {
+			logger.error("publish 服务失败！" + e.getMessage(), e);
+			throw new RuntimeException(e);
+		} finally {
+			if (httpClient instanceof CloseableHttpClient) {
+				try {
+					((CloseableHttpClient) httpClient).close();
+				} catch (IOException e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+	private HttpClient getHttpClient() {
+		try {
+			SSLContext sslContext = new SSLContextBuilder().loadTrustMaterial(null, new TrustStrategy() {
+				// 信任所有
+				public boolean isTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+					return true;
+				}
+			}).build();
+			SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(sslContext);
+			return HttpClients.custom().setSSLSocketFactory(sslsf).build();
+		} catch (KeyManagementException e) {
+			logger.error(e.getMessage(), e);
+		} catch (NoSuchAlgorithmException e) {
+			logger.error(e.getMessage(), e);
+		} catch (KeyStoreException e) {
+			logger.error(e.getMessage(), e);
+		}
+		return HttpClients.createDefault();
 	}
 
 }

@@ -1,32 +1,32 @@
 package com.netto.client.provider;
 
-public abstract class AbstractServiceProvider implements ServiceProvider {
-	private String registry; // 注册中心
-	private String serverApp; // 服务APP
-	private String serverGroup; // 服务APP下的服务分组
-    private boolean needSignature;
+import com.netto.core.context.RouteConfig;
+import com.netto.service.desc.ServerDesc;
 
-	public AbstractServiceProvider(String registry, String serverApp, String serverGroup,boolean needSignature) {
-		this.registry = registry;
-		this.serverApp = serverApp;
-		this.serverGroup = serverGroup;
+public abstract class AbstractServiceProvider implements ServiceProvider {
+	private ServerDesc serverDesc;
+	private RouteConfig routeConfig; // 服务的路由信息
+	private boolean needSignature;
+
+	public AbstractServiceProvider(ServerDesc serverDesc, boolean needSignature) {
+		this.serverDesc = serverDesc;
 		this.needSignature = true;
 	}
 
-	public String getRegistry() {
-		return registry;
+	public ServerDesc getServerDesc() {
+		return this.serverDesc;
 	}
 
-	public String getServerApp() {
-		return serverApp;
+	public RouteConfig getRouteConfig() {
+		return this.routeConfig;
 	}
 
-	public String getServerGroup() {
-		return serverGroup;
+	public void setRouteConfig(RouteConfig routeConfig) {
+		this.routeConfig = routeConfig;
 	}
-	
-	public boolean needSignature(){
-	    return this.needSignature;
+
+	public boolean needSignature() {
+		return this.needSignature;
 	}
 
 }

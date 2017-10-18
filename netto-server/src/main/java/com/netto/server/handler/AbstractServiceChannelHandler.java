@@ -30,6 +30,7 @@ import com.netto.server.desc.impl.ServiceDescApiImpl;
 import com.netto.server.handler.proxy.ServiceProxy;
 import com.netto.server.message.ArgsDeserializer;
 import com.netto.server.message.NettoMessage;
+import com.netto.service.desc.ServerDesc;
 
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandlerContext;
@@ -37,23 +38,21 @@ import io.netty.channel.ChannelHandlerContext;
 public abstract class AbstractServiceChannelHandler implements NettoServiceChannelHandler {
 
 	protected static Logger logger = Logger.getLogger(AbstractServiceChannelHandler.class);
-	private String serverApp;
-	private String serverGroup;
+	private ServerDesc serverDesc;
 	private Map<String, NettoServiceBean> serviceBeans;
 	private List<InvokeMethodFilter> filters;
 
 	private ArgsDeserializer argDeser;
 	private ObjectMapper objectMapper;
 
-	public AbstractServiceChannelHandler(String serverApp, String serverGroup,
-			Map<String, NettoServiceBean> serviceBeans, List<InvokeMethodFilter> filters) {
-		this.serverApp = serverApp;
-		this.serverGroup = serverGroup;
+	public AbstractServiceChannelHandler(ServerDesc serverDesc, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters) {
+		this.serverDesc = serverDesc;
 		this.serviceBeans = serviceBeans;
 		ServiceBean bean = new ServiceBean();
 		bean.setRefName("$serviceDesc");
 		NettoServiceBean serivceBean = new NettoServiceBean(bean,
-				new ServiceDescApiImpl(this.serverApp, this.serverGroup, this.serviceBeans));
+				new ServiceDescApiImpl(this.serverDesc, this.serviceBeans));
 		this.serviceBeans.put("$serviceDesc", serivceBean);
 
 		this.filters = filters;

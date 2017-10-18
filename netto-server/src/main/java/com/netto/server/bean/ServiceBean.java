@@ -11,7 +11,19 @@ import com.netto.core.util.Constants;
 public class ServiceBean {
 	private String refName;
 
+	private String serviceName;
+
 	private int timeout = Constants.DEFAULT_TIMEOUT;
+
+	private Boolean gateway = false;
+
+	public Boolean getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(Boolean gateway) {
+		this.gateway = gateway;
+	}
 
 	public String getRefName() {
 		return refName;
@@ -20,8 +32,6 @@ public class ServiceBean {
 	public void setRefName(String refName) {
 		this.refName = refName;
 	}
-
-	private String serviceName;
 
 	public String getServiceName() {
 		return serviceName;

@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 
 import com.netto.server.bean.NettoServiceBean;
+import com.netto.server.bean.ServiceBean;
 import com.netto.service.desc.ClassDesc;
 import com.netto.service.desc.FieldDesc;
 import com.netto.service.desc.MethodDesc;
@@ -21,22 +22,17 @@ import com.netto.service.desc.ServiceDesc;
 import com.netto.service.desc.ServiceDescApi;
 
 public class ServiceDescApiImpl implements ServiceDescApi {
-	private String serverApp;
-	private String serverGroup;
+	private ServerDesc serverDesc;
 	private Map<String, NettoServiceBean> serviceBeans;
 
-	public ServiceDescApiImpl(String serverApp, String serverGroup, Map<String, NettoServiceBean> serviceBeans) {
-		this.serverApp = serverApp;
-		this.serverGroup = serverGroup;
+	public ServiceDescApiImpl(ServerDesc serverDesc, Map<String, NettoServiceBean> serviceBeans) {
+		this.serverDesc = serverDesc;
 		this.serviceBeans = serviceBeans;
 	}
 
 	@Override
 	public ServerDesc getServerDesc() {
-		ServerDesc desc = new ServerDesc();
-		desc.setServerApp(this.serverApp);
-		desc.setServerGroup(this.serverGroup);
-		return desc;
+		return this.serverDesc;
 	}
 
 	public List<MethodDesc> findServiceMethods(String serviceName) {
@@ -73,14 +69,16 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 	public Set<ServiceDesc> findServices() {
 		Set<ServiceDesc> services = new HashSet<ServiceDesc>();
 		for (String key : this.serviceBeans.keySet()) {
+			ServiceBean serviceBean = this.serviceBeans.get(key).getServiceBean();
 			ServiceDesc desc = new ServiceDesc();
 			desc.setServiceName(key);
-			desc.setServerApp(this.serverApp);
-			desc.setTimeout(this.serviceBeans.get(key).getServiceBean().getTimeout());
+			desc.setServerApp(this.serverDesc.getServerApp());
+			desc.setTimeout(serviceBean.getTimeout());
 			Class<?>[] interfaces = this.serviceBeans.get(key).getObjectType().getInterfaces();
 			if (interfaces != null && interfaces.length > 0) {
 				desc.setInterfaceClazz(interfaces[0].getName());
 			}
+			desc.setGateway(serviceBean.getGateway());
 			services.add(desc);
 		}
 		return services;
@@ -120,12 +118,12 @@ public class ServiceDescApiImpl implements ServiceDescApi {
 		}
 	}
 
-//	private boolean checkToken(String token) {
-//		DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-//		String content = format.format(new Date());
-//		String temp = DesUtil.encrypt(content.getBytes(), content);
-//		return temp.equals(token);
-//	}
+	// private boolean checkToken(String token) {
+	// DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+	// String content = format.format(new Date());
+	// String temp = DesUtil.encrypt(content.getBytes(), content);
+	// return temp.equals(token);
+	// }
 
 	@Override
 	public int queryServiceTimeout(String serviceName) {

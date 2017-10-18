@@ -4,6 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.netto.service.desc.ServerDesc;
+
 public class ServerAddressGroup {
 	private List<ServerAddress> servers;
 	private String serverApp;
@@ -36,6 +38,14 @@ public class ServerAddressGroup {
 
 	public List<ServerAddress> getServers() {
 		return servers;
+	}
+
+	public ServerDesc getServerDesc() {
+		ServerDesc serverDesc = new ServerDesc();
+		serverDesc.setRegistry(registry);
+		serverDesc.setServerApp(serverApp);
+		serverDesc.setServerGroup(serverGroup);
+		return serverDesc;
 	}
 
 	public void setServers(String servers) {

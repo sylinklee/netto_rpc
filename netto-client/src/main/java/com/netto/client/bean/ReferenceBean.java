@@ -79,6 +79,14 @@ public class ReferenceBean implements FactoryBean<Object> {
 			ServiceAPIClient apiClient = new ServiceAPIClient(provider, this, 1000);
 			this.timeout = apiClient.getServerTimeout(this.serviceName);
 		}
+		if (protocol.equals("tcp")) {
+			// 需要看看router的注册中心和注入的注册中心是否一致，如果不一致就把协议改为http
+			if (provider.getRouteConfig() != null) {
+				if (!provider.getServerDesc().getRegistry().equals(provider.getRouteConfig().getTargetRegistry())) {
+					protocol = "http";
+				}
+			}
+		}
 		InvocationHandler client;
 		if (protocol.equals("tcp")) {
 			client = new RpcTcpClient(provider, filters, serviceName, this.timeout);

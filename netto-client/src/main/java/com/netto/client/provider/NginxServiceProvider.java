@@ -18,17 +18,19 @@ import com.netto.client.pool.ConnectPool;
 import com.netto.client.pool.HttpConnectPool;
 import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.router.ServiceRouter;
-import com.netto.client.util.JsonMapperUtil;
+import com.netto.core.context.RouteConfig;
 import com.netto.core.context.ServerAddressGroup;
 import com.netto.core.util.Constants;
+import com.netto.core.util.JsonMapperUtil;
+import com.netto.service.desc.ServerDesc;
 
 public class NginxServiceProvider extends AbstractServiceProvider {
 	private static Logger logger = Logger.getLogger(NginxServiceProvider.class);
 	private HttpConnectPool httpPool;
 	private GenericObjectPoolConfig config;
 
-	public NginxServiceProvider(String registry, String serverApp, String serverGroup, boolean needSignature) {
-		super(registry, serverApp, serverGroup, needSignature);
+	public NginxServiceProvider(ServerDesc serverDesc, boolean needSignature) {
+		super(serverDesc, needSignature);
 		this.httpPool = new HttpConnectPool();
 
 	}
@@ -57,8 +59,7 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 
 	private ServiceRouter getRouter() {
 		List<ServiceProvider> providers = this.getProviders();
-		ServiceRouter router = new ServiceRouter(this.getServerApp(), this.getServerGroup(), providers,
-				this.getRouterMap());
+		ServiceRouter router = new ServiceRouter(this.getServerDesc(), providers, this.getRouterMap());
 		return router;
 	}
 
@@ -67,23 +68,23 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 		List<ServerAddressGroup> serverGroups = this.getServerGroups();
 		for (ServerAddressGroup serverGroup : serverGroups) {
 			TcpConnectPool pool = new TcpConnectPool(serverGroup, this.config);
-			ServiceProvider provider = new LocalServiceProvider(this.getRegistry(), serverGroup.getServerApp(),
-					serverGroup.getServerGroup(), pool, this.needSignature());
+			ServiceProvider provider = new LocalServiceProvider(this.getServerDesc(), pool, this.needSignature());
 			providers.add(provider);
 		}
 		return providers;
 	}
 
 	@SuppressWarnings("unchecked")
-	private Map<String, String> getRouterMap() {
+	private Map<String, RouteConfig> getRouterMap() {
 		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(Constants.DEFAULT_TIMEOUT)
 				.setConnectionRequestTimeout(Constants.DEFAULT_TIMEOUT).setSocketTimeout(Constants.DEFAULT_TIMEOUT)
 				.build();
 		HttpClient httpClient = this.httpPool.getResource();
 		try {
 			StringBuilder sb = new StringBuilder(50);
-			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
-					.append(this.getServerApp()).append("/routers");
+			sb.append(this.getServerDesc().getRegistry())
+					.append(this.getServerDesc().getRegistry().endsWith("/") ? "" : "/")
+					.append(this.getServerDesc().getServerApp()).append("/routers");
 			HttpGet get = new HttpGet(sb.toString());
 			get.setConfig(requestConfig);
 			// 创建参数队列
@@ -101,12 +102,17 @@ public class NginxServiceProvider extends AbstractServiceProvider {
 	}
 
 	private List<ServerAddressGroup> getServerGroups() {
+		RequestConfig requestConfig = RequestConfig.custom().setConnectTimeout(Constants.DEFAULT_TIMEOUT)
+				.setConnectionRequestTimeout(Constants.DEFAULT_TIMEOUT).setSocketTimeout(Constants.DEFAULT_TIMEOUT)
+				.build();
 		HttpClient httpClient = this.httpPool.getResource();
 		try {
 			StringBuilder sb = new StringBuilder(50);
-			sb.append(this.getRegistry()).append(this.getRegistry().endsWith("/") ? "" : "/")
-					.append(this.getServerApp()).append("/servers");
+			sb.append(this.getServerDesc().getRegistry())
+					.append(this.getServerDesc().getRegistry().endsWith("/") ? "" : "/")
+					.append(this.getServerDesc().getServerApp()).append("/servers");
 			HttpGet get = new HttpGet(sb.toString());
+			get.setConfig(requestConfig);
 			// 创建参数队列
 			HttpResponse response = httpClient.execute(get);
 			HttpEntity entity = response.getEntity();

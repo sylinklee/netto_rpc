@@ -16,12 +16,12 @@ import org.apache.http.util.EntityUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.netto.client.pool.HttpConnectPool;
 import com.netto.client.provider.ServiceProvider;
-import com.netto.client.util.JsonMapperUtil;
 import com.netto.core.context.RpcContext;
 import com.netto.core.context.ServiceResponse;
 import com.netto.core.filter.InvokeMethodFilter;
 import com.netto.core.message.NettoFrame;
 import com.netto.core.util.Constants;
+import com.netto.core.util.JsonMapperUtil;
 
 public class RpcHttpClient extends AbstactRpcClient {
 	private HttpConnectPool pool;
@@ -47,7 +47,7 @@ public class RpcHttpClient extends AbstactRpcClient {
 			// 创建httppost
 			HttpPost post = new HttpPost(this.getInvokeUrl(method.getName()));
 			post.setConfig(requestConfig);
-			post.addHeader("$app", this.getProvider().getServerApp());
+			post.addHeader("$app", this.getProvider().getServerDesc().getServerApp());
 			if (RpcContext.getRouterContext() != null) {
 				post.addHeader("$router", RpcContext.getRouterContext());
 			}
@@ -96,12 +96,12 @@ public class RpcHttpClient extends AbstactRpcClient {
 
 	private String getInvokeUrl(String methodName) {
 		StringBuilder sb = new StringBuilder(100);
-		sb.append(this.getProvider().getRegistry());
-		if (!this.getProvider().getRegistry().endsWith("/")) {
+		sb.append(this.getProvider().getServerDesc().getRegistry());
+		if (!this.getProvider().getServerDesc().getRegistry().endsWith("/")) {
 			sb.append("/");
 		}
-		sb.append(this.getProvider().getServerApp()).append("/").append(this.getServiceName()).append("/")
-				.append(methodName);
+		sb.append(this.getProvider().getServerDesc().getServerApp()).append("/").append(this.getServiceName())
+				.append("/").append(methodName);
 		return sb.toString();
 	}
 }

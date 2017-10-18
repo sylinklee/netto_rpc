@@ -15,6 +15,7 @@ import com.netto.server.bean.NettoServiceBean;
 import com.netto.server.handler.AbstractServiceChannelHandler;
 import com.netto.server.handler.NettoServiceChannelHandler;
 import com.netto.server.message.NettoMessage;
+import com.netto.service.desc.ServerDesc;
 
 import io.netty.channel.ChannelHandlerContext;
 
@@ -23,15 +24,14 @@ public class AsynchronousChannelHandler extends AbstractServiceChannelHandler im
 
 	private Executor executor = null;
 
-	public AsynchronousChannelHandler(String serverApp, String serverGroup, Map<String, NettoServiceBean> serviceBeans,
+	public AsynchronousChannelHandler(ServerDesc serverDesc, Map<String, NettoServiceBean> serviceBeans,
 			List<InvokeMethodFilter> filters) {
-		this(serverApp, serverGroup, serviceBeans, filters, Integer.MAX_VALUE, 256);
+		this(serverDesc, serviceBeans, filters, Integer.MAX_VALUE, 256);
 	}
 
-	public AsynchronousChannelHandler(String serverApp, String serverGroup,
-			Map<String, NettoServiceBean> serviceBeans, List<InvokeMethodFilter> filters, int maxQueueSize,
-			int numHandlerWorker) {
-		super(serverApp, serverGroup, serviceBeans, filters);
+	public AsynchronousChannelHandler(ServerDesc serverDesc, Map<String, NettoServiceBean> serviceBeans,
+			List<InvokeMethodFilter> filters, int maxQueueSize, int numHandlerWorker) {
+		super(serverDesc, serviceBeans, filters);
 
 		executor = new ThreadPoolExecutor(numHandlerWorker, numHandlerWorker, 60000L, TimeUnit.SECONDS,
 				new LinkedBlockingQueue<Runnable>(maxQueueSize), new NamedThreadFactory("NettoHandlerThread", true));

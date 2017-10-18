@@ -2,13 +2,13 @@ package com.netto.client.provider;
 
 import com.netto.client.pool.ConnectPool;
 import com.netto.client.pool.TcpConnectPool;
+import com.netto.service.desc.ServerDesc;
 
 public class LocalServiceProvider extends AbstractServiceProvider {
 	private TcpConnectPool pool;
 
-	public LocalServiceProvider(String registry, String serverApp, String serverGroup, TcpConnectPool pool,
-			boolean needSignature) {
-		super(registry, serverApp, serverGroup, needSignature);
+	public LocalServiceProvider(ServerDesc serverDesc, TcpConnectPool pool, boolean needSignature) {
+		super(serverDesc, needSignature);
 		this.pool = pool;
 	}
 

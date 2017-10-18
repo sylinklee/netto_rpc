@@ -6,41 +6,50 @@ import java.util.Map;
 
 import com.netto.client.provider.AbstractServiceProvider;
 import com.netto.client.provider.ServiceProvider;
+import com.netto.core.context.RouteConfig;
 import com.netto.core.context.RpcContext;
+import com.netto.core.util.Constants;
+import com.netto.service.desc.ServerDesc;
 
 public class ServiceRouter {
-	private Map<String, String> routers;
+	private Map<String, RouteConfig> routers;
 	private Map<String, ServiceProvider> providerMap = new HashMap<String, ServiceProvider>();
-	private String serverApp;
-	private String serverGroup;
+	private ServerDesc serverDesc;
 
-	public ServiceRouter(String serverApp, String serverGroup, List<ServiceProvider> providers,
-			Map<String, String> routers) {
-		this.serverApp = serverApp;
-		this.serverGroup = serverGroup;
+	public ServiceRouter(ServerDesc serverDesc, List<ServiceProvider> providers, Map<String, RouteConfig> routers) {
+		this.serverDesc = serverDesc;
 		this.routers = routers;
 		for (ServiceProvider obj : providers) {
 			AbstractServiceProvider provider = (AbstractServiceProvider) obj;
-			providerMap.put(this.serverApp + "." + provider.getServerGroup(), provider);
+			providerMap.put(provider.getServerDesc().toString(), provider);
 		}
 
 	}
 
 	public ServiceProvider findProvider() {
-		return this.findProvider(this.serverGroup);
+		return this.findProvider(this.serverDesc);
 	}
 
-	private ServiceProvider findProvider(String serverGroup) {
-		if (serverGroup == null) {
+	private ServiceProvider findProvider(ServerDesc serverDesc) {
+		RouteConfig routeConfig = null;
+		if (serverDesc.getServerGroup() == null) {
 			if (RpcContext.getRouterContext() != null) {
 				if (routers != null) {
-					serverGroup = this.routers.get(RpcContext.getRouterContext());
+					routeConfig = this.routers.get(RpcContext.getRouterContext());
 				}
 			}
 		}
-		if (serverGroup == null) {
-			serverGroup = "*";
+		if (serverDesc.getServerGroup() == null) {
+			if (routeConfig == null) {
+				serverDesc.setServerGroup(Constants.DEFAULT_SERVER_GROUP);
+			} else {
+				serverDesc.setServerGroup(routeConfig.getTargetServerGroup());
+			}
 		}
-		return this.providerMap.get(serverApp + "." + serverGroup);
+		ServiceProvider provider = this.providerMap.get(serverDesc.toString());
+		if (provider != null) {
+			provider.setRouteConfig(routeConfig);
+		}
+		return provider;
 	}
 }

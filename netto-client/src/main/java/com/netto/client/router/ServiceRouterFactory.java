@@ -12,12 +12,13 @@ import com.netto.client.pool.TcpConnectPool;
 import com.netto.client.provider.LocalServiceProvider;
 import com.netto.client.provider.NginxServiceProvider;
 import com.netto.client.provider.ServiceProvider;
+import com.netto.core.context.RouteConfig;
 import com.netto.core.context.ServerAddressGroup;
 import com.netto.core.filter.InvokeMethodFilter;
 
 public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, InitializingBean {
 	private ServerAddressGroup serverGroup;
-	private Map<String, String> routers;
+	private Map<String, RouteConfig> routers;
 	private GenericObjectPoolConfig poolConfig;
 	private List<InvokeMethodFilter> filters;
 
@@ -47,11 +48,11 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 		this.filters = filters;
 	}
 
-	public Map<String, String> getRouters() {
+	public Map<String, RouteConfig> getRouters() {
 		return routers;
 	}
 
-	public void setRouters(Map<String, String> routers) {
+	public void setRouters(Map<String, RouteConfig> routers) {
 		this.routers = routers;
 	}
 
@@ -62,19 +63,17 @@ public class ServiceRouterFactory implements FactoryBean<ServiceRouter>, Initial
 		ServiceProvider provider = null;
 		if (serverGroup.getRegistry() != null && serverGroup.getRegistry().startsWith("http")) {
 
-			provider = new NginxServiceProvider(serverGroup.getRegistry(), serverGroup.getServerApp(),
-					serverGroup.getServerGroup(), needSignature).setPoolConfig(this.poolConfig);
+			provider = new NginxServiceProvider(this.serverGroup.getServerDesc(), needSignature)
+					.setPoolConfig(this.poolConfig);
 
 		} else {
 			TcpConnectPool pool = new TcpConnectPool(serverGroup, this.poolConfig);
-			provider = new LocalServiceProvider(serverGroup.getRegistry(), serverGroup.getServerApp(),
-					serverGroup.getServerGroup(), pool, needSignature);
+			provider = new LocalServiceProvider(this.serverGroup.getServerDesc(), pool, needSignature);
 
 		}
 		providers.add(provider);
 
-		return new ServiceRouter(serverGroup.getServerApp(), serverGroup.getServerGroup(), providers,
-				this.getRouters());
+		return new ServiceRouter(this.serverGroup.getServerDesc(), providers, this.getRouters());
 	}
 
 	public Class<?> getObjectType() {

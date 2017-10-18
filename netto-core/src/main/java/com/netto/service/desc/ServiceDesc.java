@@ -5,6 +5,7 @@ public class ServiceDesc {
 	private String serviceName;
 	private String interfaceClazz;
 	private int timeout;
+	private Boolean gateway;
 
 	public String getServerApp() {
 		return serverApp;
@@ -38,11 +39,20 @@ public class ServiceDesc {
 		this.timeout = timeout;
 	}
 
+	public Boolean getGateway() {
+		return gateway;
+	}
+
+	public void setGateway(Boolean gateway) {
+		this.gateway = gateway;
+	}
+
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder(100);
 		sb.append("app:").append(serverApp).append(" name:").append(serviceName).append(" timeout:")
-				.append(this.timeout).append(" interface:").append(this.interfaceClazz);
+				.append(this.timeout).append(" interface:").append(this.interfaceClazz).append(" gateway:")
+				.append(gateway);
 		return sb.toString();
 	}
 
